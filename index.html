@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Імпорт віршів з Facebook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .poem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .poem-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+        }
+
+        .poem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .poem-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .poem-checkbox {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        .poem-date {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .poem-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .poem-preview {
+            color: #666;
+            line-height: 1.6;
+            max-height: 150px;
+            overflow: hidden;
+            position: relative;
+            white-space: pre-wrap;
+            font-size: 0.95em;
+        }
+
+        .poem-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: linear-gradient(transparent, white);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .poem-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn, .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Імпорт віршів з Facebook</h1>
+            <p class="subtitle">Оберіть вірші для додавання на сайт</p>
+        </header>
+
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div class="stat-label">Всього віршів</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="selectedCount">0</div>
+                    <div class="stat-label">Обрано</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Пошук...">
+                <button class="btn btn-primary" onclick="selectAll()">Обрати всі</button>
+                <button class="btn btn-primary" onclick="deselectAll()">Скасувати вибір</button>
+                <button class="btn btn-success" onclick="importSelected()" id="importBtn">✨ Імпортувати обрані</button>
+            </div>
+
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill">0%</div>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Завантаження віршів...</p>
+            </div>
+
+            <div class="poem-grid" id="poemGrid" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+        import { getDatabase, ref, push, set } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5AKIKSZ3NxIrEKwED2kV_XjzqOVA-YSQ",
+            authDomain: "olegkras-cdae7.firebaseapp.com",
+            databaseURL: "https://olegkras-cdae7-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "olegkras-cdae7",
+            storageBucket: "olegkras-cdae7.firebasestorage.app",
+            messagingSenderId: "646414909306",
+            appId: "1:646414909306:web:7ec7dce1d0f7b9ac90a7bc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let poems = [];
+        let selectedPoems = new Set();
+
+        // Парсимо JSON файл
+        async function loadPoems() {
+            try {
+                const response = await fetch('/mnt/user-data/uploads/your_posts__check_ins__photos_and_videos_1.json');
+                const data = await response.json();
+                
+                poems = [];
+                
+                for (const post of data) {
+                    if (post.attachments) {
+                        for (const attachment of post.attachments) {
+                            if (attachment.data) {
+                                for (const item of attachment.data) {
+                                    if (item.text && item.text.length > 50) {
+                                        let text = item.text;
+                                        
+                                        // Пропускаємо службові повідомлення
+                                        if (text.includes('додав нову світлину') || 
+                                            text.includes('додав') ||
+                                            text.includes('Generated by')) {
+                                            continue;
+                                        }
+                                        
+                                        // Видаляємо дати
+                                        text = text.replace(/\d{4}-\d{2}-\d{2}/g, '');
+                                        text = text.replace(/(січ|лют|бер|кві|трав|чер|лип|сер|вер|жов|лист|груд)\. \d{1,2}, \d{4} \d{1,2}:\d{2}:\d{2}/g, '');
+                                        
+                                        // Якщо це вірш (має багато рядків)
+                                        if (text.split('\n').length > 3) {
+                                            // Видаляємо хештеги з кінця
+                                            const lines = text.split('\n');
+                                            const cleanLines = [];
+                                            for (const line of lines) {
+                                                if (line.trim().startsWith('#')) break;
+                                                cleanLines.push(line);
+                                            }
+                                            
+                                            const cleanText = cleanLines.join('\n').trim();
+                                            
+                                            if (cleanText.length > 100) {
+                                                const timestamp = post.timestamp || 0;
+                                                const date = new Date(timestamp * 1000);
+                                                const dateStr = date.toLocaleDateString('uk-UA');
+                                                
+                                                // Беремо перший рядок як заголовок
+                                                let title = cleanText.split('\n')[0].substring(0, 60);
+                                                if (title.length === 60) title += '...';
+                                                
+                                                poems.push({
+                                                    id: `fb_${timestamp}`,
+                                                    title: title,
+                                                    content: cleanText,
+                                                    date: dateStr,
+                                                    timestamp: timestamp
+                                                });
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Сортуємо за датою (найновіші спочатку)
+                poems.sort((a, b) => b.timestamp - a.timestamp);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('poemGrid').style.display = 'grid';
+                document.getElementById('totalCount').textContent = poems.length;
+                
+                renderPoems();
+            } catch (error) {
+                console.error('Помилка завантаження:', error);
+                showMessage('Помилка завантаження віршів: ' + error.message, 'error');
+            }
+        }
+
+        function renderPoems(filter = '') {
+            const grid = document.getElementById('poemGrid');
+            grid.innerHTML = '';
+            
+            const filtered = filter ? 
+                poems.filter(p => 
+                    p.title.toLowerCase().includes(filter.toLowerCase()) ||
+                    p.content.toLowerCase().includes(filter.toLowerCase())
+                ) : poems;
+            
+            filtered.forEach(poem => {
+                const card = document.createElement('div');
+                card.className = `poem-card ${selectedPoems.has(poem.id) ? 'selected' : ''}`;
+                card.onclick = () => togglePoem(poem.id);
+                
+                const preview = poem.content.split('\n').slice(0, 8).join('\n');
+                
+                card.innerHTML = `
+                    <input type="checkbox" class="poem-checkbox" 
+                           ${selectedPoems.has(poem.id) ? 'checked' : ''} 
+                           onclick="event.stopPropagation(); togglePoem('${poem.id}')">
+                    <div class="poem-date">📅 ${poem.date}</div>
+                    <div class="poem-title">${poem.title}</div>
+                    <div class="poem-preview">${preview}</div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        window.togglePoem = function(id) {
+            if (selectedPoems.has(id)) {
+                selectedPoems.delete(id);
+            } else {
+                selectedPoems.add(id);
+            }
+            document.getElementById('selectedCount').textContent = selectedPoems.size;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.selectAll = function() {
+            poems.forEach(p => selectedPoems.add(p.id));
+            document.getElementById('selectedCount').textContent = selectedPoems.size;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.deselectAll = function() {
+            selectedPoems.clear();
+            document.getElementById('selectedCount').textContent = 0;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.importSelected = async function() {
+            if (selectedPoems.size === 0) {
+                showMessage('Оберіть хоча б один вірш', 'error');
+                return;
+            }
+
+            const confirmImport = confirm(`Імпортувати ${selectedPoems.size} ${getPluralForm(selectedPoems.size)}?`);
+            if (!confirmImport) return;
+
+            const importBtn = document.getElementById('importBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            importBtn.disabled = true;
+            progressBar.style.display = 'block';
+
+            const selectedPoemsList = poems.filter(p => selectedPoems.has(p.id));
+            let imported = 0;
+            let errors = 0;
+
+            for (const poem of selectedPoemsList) {
+                try {
+                    const newPostRef = push(ref(db, 'posts'));
+                    await set(newPostRef, {
+                        title: poem.title,
+                        content: poem.content,
+                        date: poem.date,
+                        hashtags: ['#facebook', '#імпорт'],
+                        likes: 0,
+                        views: 0,
+                        timestamp: Date.now(),
+                        author: 'Олег Красовський'
+                    });
+                    
+                    imported++;
+                } catch (error) {
+                    console.error('Помилка імпорту:', error);
+                    errors++;
+                }
+
+                const progress = Math.round((imported + errors) / selectedPoemsList.length * 100);
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = progress + '%';
+            }
+
+            progressBar.style.display = 'none';
+            importBtn.disabled = false;
+
+            if (errors === 0) {
+                showMessage(`✅ Успішно імпортовано ${imported} ${getPluralForm(imported)}!`, 'success');
+                selectedPoems.clear();
+                document.getElementById('selectedCount').textContent = 0;
+                renderPoems(document.getElementById('searchBox').value);
+            } else {
+                showMessage(`⚠️ Імпортовано ${imported}, помилок: ${errors}`, 'error');
+            }
+        };
+
+        function getPluralForm(num) {
+            if (num === 1) return 'вірш';
+            if (num >= 2 && num <= 4) return 'вірші';
+            return 'віршів';
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+
+        // Пошук
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            renderPoems(e.target.value);
+        });
+
+        // Завантажуємо вірші
+        loadPoems();
+    </script>
+</body>
+</html>
