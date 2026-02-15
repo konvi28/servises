@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR) 4</title>
+    <title>Імпорт віршів з Excel (OCR)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -1222,10 +1222,16 @@
                         const category = document.getElementById(`category_${poem.id}`).value;
                         const title = document.getElementById(`title_${poem.id}`).value.trim();
                         const content = document.getElementById(`content_${poem.id}`).value.trim();
+                        const hashtagsInput = document.getElementById(`hashtags_${poem.id}`).value;
+                        const hashtags = hashtagsInput
+                            .split(',')
+                            .map(tag => tag.trim())
+                            .filter(tag => tag.length > 0);
 
                         console.log('  Категорія:', category);
                         console.log('  Заголовок:', title);
                         console.log('  Довжина тексту:', content.length);
+                        console.log('  Хештеги:', hashtags);
 
                         if (!title || !content) {
                             console.error('  ❌ Пропущено - немає заголовка або тексту');
@@ -1235,11 +1241,12 @@
 
                         const timestamp = Date.now();
                         const newPost = {
-                            content,
-                            date: new Date().toISOString(),
                             id: String(timestamp),
+                            type: category,
                             title,
-                            type: category
+                            content,
+                            hashtags,
+                            date: new Date().toISOString()
                         };
                         
                         console.log('  Створений пост:', newPost);
