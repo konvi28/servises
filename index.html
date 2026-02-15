@@ -1,21 +1,736 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <title>Тест Firebase</title>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Імпорт віршів з Excel (OCR)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 40px;
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            background: #f8f9ff;
+            border-color: #764ba2;
+        }
+
+        .upload-section.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.85em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .poem-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .poem-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            padding-bottom: 60px;
+            background: white;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .poem-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .poem-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        }
+
+        .poem-item.duplicate {
+            border-color: #ffc107;
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+        }
+
+        .duplicate-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: #ffc107;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .poem-header {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: flex-start;
+        }
+
+        .poem-checkbox {
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .poem-number {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        .poem-title-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .poem-title-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .poem-content {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+
+        .poem-content:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .ocr-warnings {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        .delete-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Модальне вікно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .edit-poem {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .edit-poem:last-child {
+            border-bottom: none;
+        }
+
+        .edit-poem-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .edit-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            margin-top: 15px;
+            display: block;
+        }
+
+        .edit-input, .edit-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .edit-input:focus, .edit-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.6;
+            resize: vertical;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .edit-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .hashtag-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .hashtag-tag {
+            display: inline-flex;
+            align-items: center;
+            background: #e0e0e0;
+            color: #333;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .hashtag-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .hashtag-tag.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .spell-check-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spell-check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .spell-check-issues {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .spell-check-issues.active {
+            display: block;
+        }
+
+        .spell-issue {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .spell-issue-word {
+            font-weight: 600;
+            color: #f5576c;
+        }
+
+        .spell-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .spell-suggestion {
+            background: #e8f4f8;
+            border: 1px solid #b8e0f0;
+            padding: 4px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .spell-suggestion:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn, .search-box {
+                width: 100%;
+            }
+
+            .modal-content {
+                margin: 10px;
+                max-height: 95vh;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Тест підключення Firebase</h1>
-    <div id="status">Перевірка...</div>
-    <button onclick="testWrite()">Тестувати запис</button>
-    <button onclick="testRead()">Тестувати читання</button>
-    
+    <div class="container">
+        <header>
+            <h1>📝 Імпорт віршів з Excel (OCR)</h1>
+            <p class="subtitle">Завантажте Excel файл з розпізнаними віршами</p>
+        </header>
+
+        <div class="content">
+            <div class="upload-section" id="uploadSection" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <h2>Перетягніть Excel файл сюди або клацніть для вибору</h2>
+                <p style="margin-top: 10px; color: #666;">Підтримуються формати: .xlsx, .xls</p>
+                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
+            </div>
+
+            <div id="mainContent" style="display: none;">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">Знайдено</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="selectedCount">0</div>
+                        <div class="stat-label">Обрано</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="duplicateCount">0</div>
+                        <div class="stat-label">Дублікатів</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="warningCount">0</div>
+                        <div class="stat-label">Помилок OCR</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Пошук...">
+                    <button class="btn btn-primary" onclick="selectAll()">Обрати всі</button>
+                    <button class="btn btn-primary" onclick="selectNew()">Тільки нові</button>
+                    <button class="btn btn-primary" onclick="deselectAll()">Скасувати</button>
+                    <button class="btn btn-success" onclick="importSelected()" id="importBtn">✨ Імпортувати</button>
+                    <button class="btn btn-danger" onclick="showManageModal()">🗑️ Керувати постами</button>
+                </div>
+
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+
+                <div class="message" id="message"></div>
+
+                <div class="poem-grid" id="poemGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно редагування -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📝 Редагування перед публікацією</h2>
+                <button class="close-btn" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body" id="editModalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="closeEditModal()">Скасувати</button>
+                <button class="btn btn-success" onclick="confirmImport()">✨ Опублікувати всі</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно керування постами -->
+    <div class="modal" id="manageModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🗑️ Керування опублікованими постами</h2>
+                <button class="close-btn" onclick="closeManageModal()">×</button>
+            </div>
+            <div class="modal-body" id="manageModalBody">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Завантаження постів...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push, set, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+        import { getDatabase, ref, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
         const firebaseConfig = {
-           apiKey: "AIzaSyAFV8kimd0f2dLw3yyQNj3fIyY4_5zCQB0",
+            apiKey: "AIzaSyAFV8kimd0f2dLw3yyQNj3fIyY4_5zCQB0",
             authDomain: "poetry-blog-ff72f.firebaseapp.com",
             databaseURL: "https://poetry-blog-ff72f-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "poetry-blog-ff72f",
@@ -26,47 +741,632 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        document.getElementById('status').textContent = '✅ Firebase ініціалізовано';
-        console.log('Firebase app:', app);
-        console.log('Database:', db);
 
-        window.testWrite = async function() {
-            try {
-                const testRef = push(ref(db, 'posts'));
-                await set(testRef, {
-                    title: 'Тестовий пост ' + Date.now(),
-                    content: 'Це тестовий пост для перевірки',
-                    category: 'poetry',
-                    date: new Date().toLocaleDateString('uk-UA'),
-                    hashtags: ['#тест'],
-                    timestamp: Date.now()
-                });
-                alert('✅ Успішно записано!');
-                console.log('Успішно записано');
-            } catch (error) {
-                alert('❌ Помилка: ' + error.message);
-                console.error('Помилка запису:', error);
-            }
-        };
+        let poems = [];
+        let selectedPoems = new Set();
+        let existingPosts = [];
 
-        window.testRead = async function() {
+        // Завантажуємо існуючі пости
+        async function loadExistingPosts() {
             try {
                 const postsRef = ref(db, 'posts');
                 const snapshot = await get(postsRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    const count = Object.keys(data).length;
-                    alert(`✅ Знайдено ${count} постів`);
-                    console.log('Пости:', data);
-                } else {
-                    alert('⚠️ Постів ще немає');
+                    existingPosts = Object.entries(data).map(([id, post]) => ({
+                        id,
+                        ...post
+                    }));
+                    console.log(`✓ Завантажено ${existingPosts.length} існуючих постів`);
                 }
             } catch (error) {
-                alert('❌ Помилка: ' + error.message);
-                console.error('Помилка читання:', error);
+                console.error('Помилка завантаження постів:', error);
+            }
+        }
+
+        loadExistingPosts();
+
+        // Перевірка дублікатів
+        function isDuplicate(title, content) {
+            return existingPosts.some(post => {
+                const titleMatch = post.title && post.title.trim().toLowerCase() === title.trim().toLowerCase();
+                const contentStart = content.trim().substring(0, 100).toLowerCase();
+                const existingStart = post.content ? post.content.trim().substring(0, 100).toLowerCase() : '';
+                const contentMatch = contentStart === existingStart;
+                return titleMatch || contentMatch;
+            });
+        }
+
+        // Drag & Drop
+        const uploadSection = document.getElementById('uploadSection');
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) processFile(file);
+        });
+
+        window.handleFile = function(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        };
+
+        function processFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    parsePoems(rows);
+                } catch (error) {
+                    showMessage('Помилка читання файлу: ' + error.message, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function parsePoems(rows) {
+            poems = [];
+            let currentPoem = [];
+            let currentTitle = '';
+            let poemNumber = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                let line = '';
+                
+                for (let cell of row) {
+                    if (cell !== null && cell !== undefined && String(cell).trim()) {
+                        line += String(cell).trim() + ' ';
+                    }
+                }
+                line = line.trim();
+
+                if (!line) {
+                    if (currentPoem.length > 3) {
+                        const content = currentPoem.join('\n').trim();
+                        const title = currentTitle || currentPoem[0].substring(0, 50);
+                        
+                        const cleanTitle = cleanOCR(title);
+                        const cleanContent = cleanOCR(content);
+                        
+                        poems.push({
+                            id: `poem_${poemNumber++}`,
+                            title: cleanTitle,
+                            content: cleanContent,
+                            category: 'poetry',
+                            original: content,
+                            warnings: detectOCRIssues(content),
+                            hashtags: ['#поезія', '#вірші'],
+                            isDuplicate: isDuplicate(cleanTitle, cleanContent)
+                        });
+                        
+                        currentPoem = [];
+                        currentTitle = '';
+                    } else {
+                        currentPoem = [];
+                        currentTitle = '';
+                    }
+                } else {
+                    if (currentPoem.length === 0 && line.length < 60 && !line.includes(' ')) {
+                        currentTitle = line;
+                    }
+                    currentPoem.push(line);
+                }
+            }
+
+            if (currentPoem.length > 3) {
+                const content = currentPoem.join('\n').trim();
+                const title = currentTitle || currentPoem[0].substring(0, 50);
+                const cleanTitle = cleanOCR(title);
+                const cleanContent = cleanOCR(content);
+                
+                poems.push({
+                    id: `poem_${poemNumber++}`,
+                    title: cleanTitle,
+                    content: cleanContent,
+                    category: 'poetry',
+                    original: content,
+                    warnings: detectOCRIssues(content),
+                    hashtags: ['#поезія', '#вірші'],
+                    isDuplicate: isDuplicate(cleanTitle, cleanContent)
+                });
+            }
+
+            const duplicates = poems.filter(p => p.isDuplicate).length;
+            showMessage(`Знайдено ${poems.length} віршів (${duplicates} можливих дублікатів). Перевірте текст та виправте помилки OCR.`, 'info');
+            
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('totalCount').textContent = poems.length;
+            document.getElementById('duplicateCount').textContent = duplicates;
+            document.getElementById('warningCount').textContent = poems.filter(p => p.warnings.length > 0).length;
+            
+            renderPoems();
+        }
+
+        function cleanOCR(text) {
+            return text
+                .replace(/ҐПаЕ/g, 'Час')
+                .replace(/нрай/g, 'край')
+                .replace(/тг зілля/g, 'та зілля')
+                .replace(/нов з чаю/g, 'мов з чаю')
+                .replace(/е /g, 'є ')
+                .replace(/ е,/g, ' є,')
+                .replace(/н '1'/g, "!'")
+                .replace(/■/g, '-')
+                .replace(/Іірасіііьнля/g, 'Красовський')
+                .replace(/Нрасйііьння/g, 'Красовський')
+                .replace(/коті е,/g, 'котів,')
+                .replace(/леть/g, 'лет')
+                .replace(/соб які/g, 'собак')
+                .replace(/г\./g, 'р.');
+        }
+
+        function detectOCRIssues(text) {
+            const warnings = [];
+            if (text.match(/[ҐІ]/)) warnings.push('Можливі неправильні літери');
+            if (text.match(/[■□]/)) warnings.push('Спецсимволи');
+            if (text.match(/\sе\s/)) warnings.push('є → е');
+            if (text.match(/н[рп]а[йи]/)) warnings.push('нрай → край');
+            return warnings;
+        }
+
+        function renderPoems(filter = '') {
+            const grid = document.getElementById('poemGrid');
+            grid.innerHTML = '';
+            
+            const filtered = filter ? 
+                poems.filter(p => 
+                    p.title.toLowerCase().includes(filter.toLowerCase()) ||
+                    p.content.toLowerCase().includes(filter.toLowerCase())
+                ) : poems;
+            
+            filtered.forEach((poem, index) => {
+                const item = document.createElement('div');
+                item.className = `poem-item ${selectedPoems.has(poem.id) ? 'selected' : ''} ${poem.isDuplicate ? 'duplicate' : ''}`;
+                
+                const warningsHtml = poem.warnings.length > 0 ? 
+                    `<div class="ocr-warnings">⚠️ ${poem.warnings.join(', ')}</div>` : '';
+                
+                const duplicateBadge = poem.isDuplicate ? 
+                    '<div class="duplicate-badge">⚠️ Можливий дублікат</div>' : '';
+                
+                item.innerHTML = `
+                    ${duplicateBadge}
+                    <div class="poem-header">
+                        <input type="checkbox" class="poem-checkbox" 
+                               ${selectedPoems.has(poem.id) ? 'checked' : ''}
+                               onchange="togglePoem('${poem.id}')">
+                        <span class="poem-number">#${index + 1}</span>
+                        <input type="text" class="poem-title-input" 
+                               value="${poem.title}" 
+                               onchange="updateTitle('${poem.id}', this.value)"
+                               placeholder="Заголовок...">
+                    </div>
+                    <textarea class="poem-content" 
+                              onchange="updateContent('${poem.id}', this.value)">${poem.content}</textarea>
+                    ${warningsHtml}
+                    <button class="delete-btn" onclick="deletePoem('${poem.id}')">🗑️ Видалити</button>
+                `;
+                
+                grid.appendChild(item);
+            });
+        }
+
+        window.updateTitle = function(id, newTitle) {
+            const poem = poems.find(p => p.id === id);
+            if (poem) poem.title = newTitle;
+        };
+
+        window.updateContent = function(id, newContent) {
+            const poem = poems.find(p => p.id === id);
+            if (poem) poem.content = newContent;
+        };
+
+        window.togglePoem = function(id) {
+            if (selectedPoems.has(id)) {
+                selectedPoems.delete(id);
+            } else {
+                selectedPoems.add(id);
+            }
+            document.getElementById('selectedCount').textContent = selectedPoems.size;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.selectAll = function() {
+            poems.forEach(p => selectedPoems.add(p.id));
+            document.getElementById('selectedCount').textContent = selectedPoems.size;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.selectNew = function() {
+            selectedPoems.clear();
+            poems.filter(p => !p.isDuplicate).forEach(p => selectedPoems.add(p.id));
+            document.getElementById('selectedCount').textContent = selectedPoems.size;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.deselectAll = function() {
+            selectedPoems.clear();
+            document.getElementById('selectedCount').textContent = 0;
+            renderPoems(document.getElementById('searchBox').value);
+        };
+
+        window.deletePoem = function(id) {
+            if (confirm('Видалити цей вірш зі списку?')) {
+                poems = poems.filter(p => p.id !== id);
+                selectedPoems.delete(id);
+                document.getElementById('totalCount').textContent = poems.length;
+                document.getElementById('selectedCount').textContent = selectedPoems.size;
+                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
+                renderPoems(document.getElementById('searchBox').value);
             }
         };
+
+        // Популярні хештеги
+        const popularHashtags = [
+            '#поезія', '#вірші', '#українськоюмовою', '#думки', 
+            '#роздуми', '#філософія', '#життя', '#любов',
+            '#природа', '#осінь', '#весна', '#зима', '#літо',
+            '#душа', '#серце', '#почуття', '#емоції',
+            '#творчість', '#література', '#поет'
+        ];
+
+        window.importSelected = function() {
+            if (selectedPoems.size === 0) {
+                showMessage('Оберіть хоча б один вірш', 'error');
+                return;
+            }
+            showEditModal();
+        };
+
+        function showEditModal() {
+            const modal = document.getElementById('editModal');
+            const modalBody = document.getElementById('editModalBody');
+            modalBody.innerHTML = '';
+
+            const selectedPoemsList = poems.filter(p => selectedPoems.has(p.id));
+            
+            selectedPoemsList.forEach((poem, index) => {
+                const editDiv = document.createElement('div');
+                editDiv.className = 'edit-poem';
+                editDiv.innerHTML = `
+                    <span class="edit-poem-number">Вірш #${index + 1}</span>
+                    ${poem.isDuplicate ? '<div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin: 10px 0;"><strong>⚠️ Увага:</strong> Цей вірш можливо вже опублікований!</div>' : ''}
+                    
+                    <label class="edit-label">Категорія:</label>
+                    <select class="edit-input edit-select" id="category_${poem.id}">
+                        <option value="poetry">📖 Поезія</option>
+                        <option value="thought">💭 Думка</option>
+                    </select>
+                    
+                    <label class="edit-label">Заголовок:</label>
+                    <input type="text" class="edit-input" id="title_${poem.id}" 
+                           value="${poem.title}" placeholder="Введіть заголовок...">
+                    
+                    <label class="edit-label">Текст:</label>
+                    <button class="spell-check-btn" onclick="checkSpelling('${poem.id}')">
+                        ✓ Перевірити орфографію
+                    </button>
+                    <div class="spell-check-issues" id="spell_${poem.id}"></div>
+                    <textarea class="edit-textarea" id="content_${poem.id}">${poem.content}</textarea>
+                    
+                    <label class="edit-label">Хештеги:</label>
+                    <input type="text" class="edit-input" id="hashtags_${poem.id}" 
+                           value="${poem.hashtags.join(', ')}" 
+                           placeholder="Введіть хештеги через кому...">
+                    <div class="hashtag-suggestions" id="hashtag_suggestions_${poem.id}">
+                        ${popularHashtags.map(tag => 
+                            `<span class="hashtag-tag ${poem.hashtags.includes(tag) ? 'selected' : ''}" 
+                                   onclick="toggleHashtag('${poem.id}', '${tag}')">${tag}</span>`
+                        ).join('')}
+                    </div>
+                `;
+                modalBody.appendChild(editDiv);
+            });
+
+            modal.classList.add('active');
+        }
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.remove('active');
+        };
+
+        window.toggleHashtag = function(poemId, tag) {
+            const input = document.getElementById(`hashtags_${poemId}`);
+            const currentTags = input.value.split(',').map(t => t.trim()).filter(t => t);
+            
+            if (currentTags.includes(tag)) {
+                const newTags = currentTags.filter(t => t !== tag);
+                input.value = newTags.join(', ');
+            } else {
+                currentTags.push(tag);
+                input.value = currentTags.join(', ');
+            }
+
+            const tagElement = event.target;
+            tagElement.classList.toggle('selected');
+        };
+
+        window.checkSpelling = function(poemId) {
+            const content = document.getElementById(`content_${poemId}`).value;
+            const issuesDiv = document.getElementById(`spell_${poemId}`);
+            
+            const commonIssues = [
+                { wrong: 'е ', correct: 'є ', regex: /\sе\s/g },
+                { wrong: ' е,', correct: ' є,', regex: /\sе,/g },
+                { wrong: ' е.', correct: ' є.', regex: /\sе\./g },
+                { wrong: 'нрай', correct: 'край', regex: /нрай/g },
+                { wrong: 'ҐПаЕ', correct: 'Час', regex: /ҐПаЕ/g },
+                { wrong: 'коті е', correct: 'котів', regex: /коті\sе/g },
+                { wrong: 'леть', correct: 'лет', regex: /леть/g },
+                { wrong: 'тг ', correct: 'та ', regex: /тг\s/g },
+                { wrong: '■', correct: '-', regex: /■/g },
+                { wrong: 'нов ', correct: 'мов ', regex: /нов\s/g },
+                { wrong: 'II ', correct: '', regex: /^II\s/gm },
+            ];
+
+            const foundIssues = [];
+            commonIssues.forEach(issue => {
+                if (content.match(issue.regex)) {
+                    foundIssues.push(issue);
+                }
+            });
+
+            if (foundIssues.length > 0) {
+                issuesDiv.innerHTML = `
+                    <strong>⚠️ Знайдено ${foundIssues.length} помилок:</strong>
+                    ${foundIssues.map((issue, idx) => `
+                        <div class="spell-issue">
+                            <span class="spell-issue-word">"${issue.wrong.trim()}"</span> →
+                            <div class="spell-suggestions">
+                                <span class="spell-suggestion" 
+                                      onclick="applyFix('${poemId}', ${idx})">
+                                    ${issue.correct.trim() || '(видалити)'}
+                                </span>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                issuesDiv.classList.add('active');
+                
+                // Зберігаємо issues для використання в applyFix
+                window[`spellIssues_${poemId}`] = foundIssues;
+            } else {
+                issuesDiv.innerHTML = '<strong>✅ Помилок не знайдено!</strong>';
+                issuesDiv.classList.add('active');
+                setTimeout(() => {
+                    issuesDiv.classList.remove('active');
+                }, 3000);
+            }
+        };
+
+        window.applyFix = function(poemId, issueIndex) {
+            const textarea = document.getElementById(`content_${poemId}`);
+            const issues = window[`spellIssues_${poemId}`];
+            if (issues && issues[issueIndex]) {
+                const issue = issues[issueIndex];
+                textarea.value = textarea.value.replace(issue.regex, issue.correct);
+                checkSpelling(poemId);
+            }
+        };
+
+        window.confirmImport = async function() {
+            console.log('🔄 Початок публікації...');
+            
+            const selectedPoemsList = poems.filter(p => selectedPoems.has(p.id));
+            console.log(`📝 Обрано віршів: ${selectedPoemsList.length}`);
+            
+            const modalFooter = document.querySelector('#editModal .modal-footer');
+            console.log('Modal footer:', modalFooter);
+            
+            const importBtn = modalFooter.querySelector('.btn-success');
+            console.log('Import button:', importBtn);
+            
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            
+            if (!importBtn) {
+                console.error('❌ Не знайдено кнопку публікації!');
+                alert('Помилка: не знайдено кнопку публікації');
+                return;
+            }
+            
+            importBtn.disabled = true;
+            importBtn.textContent = '⏳ Публікація...';
+            progressBar.style.display = 'block';
+
+            let imported = 0;
+            let errors = 0;
+
+            console.log('🚀 Починаємо імпорт...');
+            
+            for (const poem of selectedPoemsList) {
+                try {
+                    console.log(`\n📄 Обробка вірша: ${poem.id}`);
+                    
+                    const category = document.getElementById(`category_${poem.id}`).value;
+                    const title = document.getElementById(`title_${poem.id}`).value.trim();
+                    const content = document.getElementById(`content_${poem.id}`).value.trim();
+                    const hashtagsInput = document.getElementById(`hashtags_${poem.id}`).value;
+                    const hashtags = hashtagsInput.split(',').map(t => t.trim()).filter(t => t);
+
+                    console.log('  Категорія:', category);
+                    console.log('  Заголовок:', title);
+                    console.log('  Довжина тексту:', content.length);
+                    console.log('  Хештеги:', hashtags);
+
+                    if (!title || !content) {
+                        console.error('  ❌ Пропущено - немає заголовка або тексту');
+                        errors++;
+                        continue;
+                    }
+
+                    console.log('  📤 Відправка в Firebase...');
+                    const newPostRef = push(ref(db, 'posts'));
+                    await set(newPostRef, {
+                        title,
+                        content,
+                        category,
+                        date: new Date().toLocaleDateString('uk-UA'),
+                        hashtags,
+                        likes: 0,
+                        views: 0,
+                        timestamp: Date.now(),
+                        author: 'Олег Красовський'
+                    });
+                    
+                    imported++;
+                    console.log(`  ✅ Імпортовано: ${title}`);
+                } catch (error) {
+                    console.error('  ❌ Помилка імпорту:', error);
+                    console.error('  Деталі помилки:', error.message, error.stack);
+                    errors++;
+                }
+
+                const progress = Math.round((imported + errors) / selectedPoemsList.length * 100);
+                progressFill.style.width = progress + '%';
+                progressFill.textContent = progress + '%';
+            }
+
+            console.log(`\n📊 Результати: імпортовано ${imported}, помилок ${errors}`);
+
+            progressBar.style.display = 'none';
+            importBtn.disabled = false;
+            importBtn.textContent = '✨ Опублікувати всі';
+            closeEditModal();
+
+            if (errors === 0) {
+                showMessage(`✅ Успішно опубліковано ${imported} ${getPluralForm(imported)}!`, 'success');
+                console.log('🔄 Оновлення списку постів...');
+                await loadExistingPosts();
+                selectedPoems.clear();
+                document.getElementById('selectedCount').textContent = 0;
+                poems.forEach(p => {
+                    p.isDuplicate = isDuplicate(p.title, p.content);
+                });
+                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
+                renderPoems(document.getElementById('searchBox').value);
+                console.log('✅ Завершено успішно!');
+            } else {
+                showMessage(`⚠️ Опубліковано ${imported}, помилок: ${errors}. Дивіться консоль.`, 'error');
+                console.error('⚠️ Завершено з помилками');
+            }
+        };
+
+        // Керування постами
+        window.showManageModal = async function() {
+            const modal = document.getElementById('manageModal');
+            const modalBody = document.getElementById('manageModalBody');
+            modal.classList.add('active');
+            
+            modalBody.innerHTML = '<div class="loading"><div class="spinner"></div><p>Завантаження...</p></div>';
+            
+            await loadExistingPosts();
+            
+            if (existingPosts.length === 0) {
+                modalBody.innerHTML = '<p style="text-align: center; padding: 40px;">Постів ще немає</p>';
+                return;
+            }
+
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="manageSearch" class="edit-input" placeholder="🔍 Пошук по заголовку..." 
+                           onkeyup="filterManagePosts(this.value)">
+                </div>
+                <div id="managePostsList"></div>
+            `;
+            
+            renderManagePosts();
+        };
+
+        function renderManagePosts(filter = '') {
+            const container = document.getElementById('managePostsList');
+            if (!container) return;
+            
+            const filtered = filter ? 
+                existingPosts.filter(p => p.title && p.title.toLowerCase().includes(filter.toLowerCase())) :
+                existingPosts;
+            
+            container.innerHTML = filtered.map(post => `
+                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1;">
+                            <strong>${post.title || 'Без заголовка'}</strong>
+                            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                                ${post.category === 'poetry' ? '📖' : '💭'} 
+                                ${post.date || ''} • 
+                                ${post.hashtags ? post.hashtags.slice(0, 3).join(' ') : ''}
+                            </div>
+                            <div style="color: #999; font-size: 0.85em; margin-top: 5px; max-height: 40px; overflow: hidden;">
+                                ${(post.content || '').substring(0, 100)}...
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" style="padding: 8px 16px; margin-left: 15px;" 
+                                onclick="deletePost('${post.id}', '${(post.title || '').replace(/'/g, "\\'")}')">
+                            🗑️ Видалити
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.filterManagePosts = function(value) {
+            renderManagePosts(value.toLowerCase());
+        };
+
+        window.deletePost = async function(postId, postTitle) {
+            if (!confirm(`Видалити пост "${postTitle}"?`)) return;
+            
+            try {
+                await remove(ref(db, `posts/${postId}`));
+                showMessage(`✅ Пост видалено`, 'success');
+                await loadExistingPosts();
+                renderManagePosts();
+                
+                // Оновлюємо статистику дублікатів
+                poems.forEach(p => {
+                    p.isDuplicate = isDuplicate(p.title, p.content);
+                });
+                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
+            } catch (error) {
+                showMessage(`❌ Помилка видалення: ${error.message}`, 'error');
+            }
+        };
+
+        window.closeManageModal = function() {
+            document.getElementById('manageModal').classList.remove('active');
+        };
+
+        function getPluralForm(num) {
+            if (num === 1) return 'вірш';
+            if (num >= 2 && num <= 4) return 'вірші';
+            return 'віршів';
+        }
+
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            renderPoems(e.target.value);
+        });
     </script>
 </body>
 </html>
