@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR)</title>
+    <title>Імпорт віршів з Excel (OCR)  v 5</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -846,7 +846,7 @@
                             category: 'poetry',
                             original: content,
                             warnings: detectOCRIssues(content),
-                            hashtags: ['#поезія', '#вірші'],
+                            hashtags: ['лірика', 'філософія'],
                             isDuplicate: isDuplicate(cleanTitle, cleanContent)
                         });
                         
@@ -877,7 +877,7 @@
                     category: 'poetry',
                     original: content,
                     warnings: detectOCRIssues(content),
-                    hashtags: ['#поезія', '#вірші'],
+                    hashtags: ['поезія', 'вірші'],
                     isDuplicate: isDuplicate(cleanTitle, cleanContent)
                 });
             }
@@ -1015,11 +1015,11 @@
 
         // Популярні хештеги
         const popularHashtags = [
-            '#поезія', '#вірші', '#українськоюмовою', '#думки', 
-            '#роздуми', '#філософія', '#життя', '#любов',
-            '#природа', '#осінь', '#весна', '#зима', '#літо',
-            '#душа', '#серце', '#почуття', '#емоції',
-            '#творчість', '#література', '#поет'
+            'лірика', 'філософія', 'поезія', 'вірші', 'українськоюмовою', 'думки', 
+            'роздуми', 'життя', 'любов',
+            'природа', 'осінь', 'весна', 'зима', 'літо',
+            'душа', 'серце', 'почуття', 'емоції',
+            'творчість', 'література', 'поет'
         ];
 
         window.importSelected = function() {
@@ -1068,7 +1068,7 @@
                     <div class="hashtag-suggestions" id="hashtag_suggestions_${poem.id}">
                         ${popularHashtags.map(tag => 
                             `<span class="hashtag-tag ${poem.hashtags.includes(tag) ? 'selected' : ''}" 
-                                   onclick="toggleHashtag('${poem.id}', '${tag}')">${tag}</span>`
+                                   onclick="toggleHashtag('${poem.id}', '${tag}')">#${tag}</span>`
                         ).join('')}
                     </div>
                 `;
@@ -1226,6 +1226,7 @@
                         const hashtags = hashtagsInput
                             .split(',')
                             .map(tag => tag.trim())
+                            .map(tag => tag.startsWith('#') ? tag.substring(1) : tag) // Прибираємо # на початку
                             .filter(tag => tag.length > 0);
 
                         console.log('  Категорія:', category);
