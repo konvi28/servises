@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR)</title>
+    <title>Імпорт віршів з Excel (OCR) v 2</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -1213,17 +1213,17 @@
                     }
 
                     console.log('  📤 Відправка в Firebase...');
-                    const newPostRef = push(ref(db, 'posts'));
+                    const timestamp = Date.now();
+                    const newPostRef = ref(db, `posts/${timestamp}`);
                     await set(newPostRef, {
+                        id: String(timestamp),
                         title,
                         content,
-                        category,
-                        date: new Date().toLocaleDateString('uk-UA'),
+                        type: category, // poetry або thought
+                        date: new Date().toISOString(),
                         hashtags,
                         likes: 0,
-                        views: 0,
-                        timestamp: Date.now(),
-                        author: 'Олег Красовський'
+                        views: 0
                     });
                     
                     imported++;
