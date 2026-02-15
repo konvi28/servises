@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR)  v 5</title>
+    <title>Імпорт віршів з Excel (OCR)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -679,6 +679,7 @@
                     <button class="btn btn-primary" onclick="selectAll()">Обрати всі</button>
                     <button class="btn btn-primary" onclick="selectNew()">Тільки нові</button>
                     <button class="btn btn-primary" onclick="deselectAll()">Скасувати</button>
+                    <button class="btn btn-primary" onclick="showDuplicateReport()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔍 Детальна перевірка дублікатів</button>
                     <button class="btn btn-success" onclick="importSelected()" id="importBtn">✨ Імпортувати</button>
                     <button class="btn btn-danger" onclick="showManageModal()">🗑️ Керувати постами</button>
                 </div>
@@ -725,6 +726,22 @@
         </div>
     </div>
 
+    <!-- Модальне вікно звіту про дублікати -->
+    <div class="modal" id="duplicateReportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🔍 Детальний звіт про дублікати</h2>
+                <button class="close-btn" onclick="closeDuplicateReport()">×</button>
+            </div>
+            <div class="modal-body" id="duplicateReportBody">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Аналіз...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
         import { getDatabase, ref, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
@@ -766,15 +783,92 @@
 
         loadExistingPosts();
 
-        // Перевірка дублікатів
+        // Перевірка дублікатів - покращена версія
         function isDuplicate(title, content) {
             return existingPosts.some(post => {
-                const titleMatch = post.title && post.title.trim().toLowerCase() === title.trim().toLowerCase();
+                // Рівень 1: Точна відповідність заголовка
+                const titleMatch = post.title && 
+                    post.title.trim().toLowerCase() === title.trim().toLowerCase();
+                
+                // Рівень 2: Перші 100 символів контенту
                 const contentStart = content.trim().substring(0, 100).toLowerCase();
-                const existingStart = post.content ? post.content.trim().substring(0, 100).toLowerCase() : '';
-                const contentMatch = contentStart === existingStart;
-                return titleMatch || contentMatch;
+                const existingStart = post.content ? 
+                    post.content.trim().substring(0, 100).toLowerCase() : '';
+                const contentStartMatch = contentStart && existingStart && 
+                    contentStart === existingStart;
+                
+                // Рівень 3: Перші 200 символів контенту (для довших текстів)
+                const contentLong = content.trim().substring(0, 200).toLowerCase();
+                const existingLong = post.content ? 
+                    post.content.trim().substring(0, 200).toLowerCase() : '';
+                const contentLongMatch = contentLong.length > 100 && 
+                    existingLong.length > 100 && 
+                    contentLong === existingLong;
+                
+                // Рівень 4: Схожість тексту (приблизно 80%+)
+                const similarity = calculateSimilarity(
+                    content.trim().substring(0, 300), 
+                    post.content ? post.content.trim().substring(0, 300) : ''
+                );
+                const similarityMatch = similarity > 0.8;
+                
+                // Рівень 5: Перший рядок вірша (часто унікальний)
+                const firstLine = content.trim().split('\n')[0].toLowerCase();
+                const existingFirstLine = post.content ? 
+                    post.content.trim().split('\n')[0].toLowerCase() : '';
+                const firstLineMatch = firstLine.length > 10 && 
+                    existingFirstLine.length > 10 &&
+                    firstLine === existingFirstLine;
+                
+                return titleMatch || contentStartMatch || contentLongMatch || 
+                       similarityMatch || firstLineMatch;
             });
+        }
+
+        // Функція розрахунку схожості тексту (алгоритм Левенштейна спрощений)
+        function calculateSimilarity(str1, str2) {
+            if (!str1 || !str2) return 0;
+            if (str1 === str2) return 1;
+            
+            // Нормалізуємо тексти
+            str1 = str1.toLowerCase().replace(/\s+/g, ' ').trim();
+            str2 = str2.toLowerCase().replace(/\s+/g, ' ').trim();
+            
+            if (str1 === str2) return 1;
+            
+            // Порівнюємо слова
+            const words1 = str1.split(' ');
+            const words2 = str2.split(' ');
+            
+            let matchingWords = 0;
+            words1.forEach(word => {
+                if (words2.includes(word)) matchingWords++;
+            });
+            
+            const similarity = (matchingWords * 2) / (words1.length + words2.length);
+            return similarity;
+        }
+
+        // Детальна інформація про дублікат
+        function getDuplicateInfo(title, content) {
+            const duplicates = existingPosts.filter(post => {
+                const titleMatch = post.title && 
+                    post.title.trim().toLowerCase() === title.trim().toLowerCase();
+                
+                const contentStart = content.trim().substring(0, 100).toLowerCase();
+                const existingStart = post.content ? 
+                    post.content.trim().substring(0, 100).toLowerCase() : '';
+                const contentMatch = contentStart === existingStart;
+                
+                const similarity = calculateSimilarity(
+                    content.trim().substring(0, 300), 
+                    post.content ? post.content.trim().substring(0, 300) : ''
+                );
+                
+                return titleMatch || contentMatch || similarity > 0.8;
+            });
+            
+            return duplicates;
         }
 
         // Drag & Drop
@@ -1390,6 +1484,106 @@
 
         window.closeManageModal = function() {
             document.getElementById('manageModal').classList.remove('active');
+        };
+
+        // Детальний звіт про дублікати
+        window.showDuplicateReport = function() {
+            const modal = document.getElementById('duplicateReportModal');
+            const modalBody = document.getElementById('duplicateReportBody');
+            modal.classList.add('active');
+            
+            modalBody.innerHTML = '<div class="loading"><div class="spinner"></div><p>Аналіз дублікатів...</p></div>';
+            
+            setTimeout(() => {
+                let html = '<h3 style="margin-bottom: 20px;">📊 Результати аналізу</h3>';
+                
+                const duplicatesFound = poems.filter(p => p.isDuplicate);
+                
+                if (duplicatesFound.length === 0) {
+                    html += `
+                        <div style="text-align: center; padding: 40px; background: #d4edda; border-radius: 15px; color: #155724;">
+                            <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
+                            <h2 style="margin-bottom: 10px;">Дублікатів не знайдено!</h2>
+                            <p>Всі ${poems.length} віршів унікальні і готові до публікації.</p>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ffc107;">
+                            <strong>⚠️ Знайдено ${duplicatesFound.length} можливих дублікатів</strong>
+                            <p style="margin-top: 5px; color: #856404;">Перевірте кожен вірш перед публікацією</p>
+                        </div>
+                    `;
+                    
+                    duplicatesFound.forEach((poem, index) => {
+                        const duplicateMatches = getDuplicateInfo(poem.title, poem.content);
+                        
+                        html += `
+                            <div style="border: 2px solid #ffc107; border-radius: 15px; padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);">
+                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                    <div style="flex: 1;">
+                                        <strong style="font-size: 1.1em; color: #333;">📝 ${poem.title}</strong>
+                                        <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
+                                            Знайдено ${duplicateMatches.length} схожих постів
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                    <strong>Ваш вірш:</strong>
+                                    <div style="color: #666; margin-top: 10px; max-height: 100px; overflow: hidden; font-family: 'Courier New', monospace; font-size: 0.9em;">
+                                        ${poem.content.substring(0, 200)}...
+                                    </div>
+                                </div>
+                                
+                                <strong style="display: block; margin-bottom: 10px;">Схожі пости на сайті:</strong>
+                                ${duplicateMatches.map((match, idx) => {
+                                    const similarity = calculateSimilarity(
+                                        poem.content.substring(0, 300),
+                                        match.content ? match.content.substring(0, 300) : ''
+                                    );
+                                    const similarityPercent = Math.round(similarity * 100);
+                                    
+                                    return `
+                                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${similarityPercent > 90 ? '#dc3545' : similarityPercent > 80 ? '#ffc107' : '#28a745'};">
+                                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                                <strong>${match.title || 'Без заголовка'}</strong>
+                                                <span style="background: ${similarityPercent > 90 ? '#dc3545' : similarityPercent > 80 ? '#ffc107' : '#28a745'}; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.85em;">
+                                                    ${similarityPercent}% схожість
+                                                </span>
+                                            </div>
+                                            <div style="color: #666; font-size: 0.85em; margin-bottom: 8px;">
+                                                ${match.type === 'poetry' ? '📖 Поезія' : '💭 Думка'} • ${match.date ? new Date(match.date).toLocaleDateString('uk-UA') : ''}
+                                            </div>
+                                            <div style="color: #666; font-size: 0.85em; max-height: 60px; overflow: hidden; font-family: 'Courier New', monospace;">
+                                                ${match.content ? match.content.substring(0, 150) : ''}...
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        `;
+                    });
+                }
+                
+                html += `
+                    <div style="margin-top: 30px; padding: 20px; background: #e8f4f8; border-radius: 15px;">
+                        <h4 style="margin-bottom: 10px;">ℹ️ Як працює перевірка:</h4>
+                        <ul style="margin-left: 20px; line-height: 1.8;">
+                            <li>✅ Точна відповідність заголовка</li>
+                            <li>✅ Збіг перших 100-200 символів тексту</li>
+                            <li>✅ Схожість понад 80% за словами</li>
+                            <li>✅ Збіг першого рядка вірша</li>
+                        </ul>
+                    </div>
+                `;
+                
+                modalBody.innerHTML = html;
+            }, 500);
+        };
+
+        window.closeDuplicateReport = function() {
+            document.getElementById('duplicateReportModal').classList.remove('active');
         };
 
         function getPluralForm(num) {
