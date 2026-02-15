@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR) v 3</title>
+    <title>Імпорт віршів з Excel (OCR)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
@@ -1191,49 +1191,89 @@
 
             console.log('🚀 Починаємо імпорт...');
             
-            for (const poem of selectedPoemsList) {
-                try {
-                    console.log(`\n📄 Обробка вірша: ${poem.id}`);
-                    
-                    const category = document.getElementById(`category_${poem.id}`).value;
-                    const title = document.getElementById(`title_${poem.id}`).value.trim();
-                    const content = document.getElementById(`content_${poem.id}`).value.trim();
-                    const hashtagsInput = document.getElementById(`hashtags_${poem.id}`).value;
-                    const hashtags = hashtagsInput.split(',').map(t => t.trim()).filter(t => t);
+            try {
+                // Завантажуємо існуючий масив постів
+                console.log('📥 Завантаження існуючих постів...');
+                const postsRef = ref(db, 'posts');
+                const snapshot = await get(postsRef);
+                let postsArray = [];
+                
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    // Якщо це масив - використовуємо його
+                    if (Array.isArray(data)) {
+                        postsArray = data;
+                        console.log(`✓ Завантажено ${postsArray.length} існуючих постів (масив)`);
+                    } 
+                    // Якщо це об'єкт - конвертуємо в масив
+                    else if (typeof data === 'object') {
+                        postsArray = Object.values(data).filter(p => p && p.id);
+                        console.log(`✓ Конвертовано ${postsArray.length} постів з об'єкта в масив`);
+                    }
+                } else {
+                    console.log('⚠️ База порожня, створюємо новий масив');
+                }
+                
+                // Додаємо нові пости
+                for (const poem of selectedPoemsList) {
+                    try {
+                        console.log(`\n📄 Обробка вірша: ${poem.id}`);
+                        
+                        const category = document.getElementById(`category_${poem.id}`).value;
+                        const title = document.getElementById(`title_${poem.id}`).value.trim();
+                        const content = document.getElementById(`content_${poem.id}`).value.trim();
 
-                    console.log('  Категорія:', category);
-                    console.log('  Заголовок:', title);
-                    console.log('  Довжина тексту:', content.length);
-                    console.log('  Хештеги:', hashtags);
+                        console.log('  Категорія:', category);
+                        console.log('  Заголовок:', title);
+                        console.log('  Довжина тексту:', content.length);
 
-                    if (!title || !content) {
-                        console.error('  ❌ Пропущено - немає заголовка або тексту');
+                        if (!title || !content) {
+                            console.error('  ❌ Пропущено - немає заголовка або тексту');
+                            errors++;
+                            continue;
+                        }
+
+                        const timestamp = Date.now();
+                        const newPost = {
+                            id: String(timestamp),
+                            type: category,
+                            title,
+                            content,
+                            hashtags,
+                            date: new Date().toISOString()
+                        };
+                        
+                        console.log('  Створений пост:', newPost);
+                        
+                        // Додаємо на початок масиву (найновіші спочатку)
+                        postsArray.unshift(newPost);
+                        
+                        imported++;
+                        console.log(`  ✅ Додано до масиву: ${title}`);
+                        
+                        // Невелика затримка для унікальності timestamp
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                        
+                    } catch (error) {
+                        console.error('  ❌ Помилка обробки:', error);
                         errors++;
-                        continue;
                     }
 
-                    console.log('  📤 Відправка в Firebase...');
-                    const timestamp = Date.now();
-                    const newPostRef = ref(db, `posts/${timestamp}`);
-                    await set(newPostRef, {
-                        id: String(timestamp),
-                        title,
-                        content,
-                        type: category, // poetry або thought
-                        date: new Date().toISOString()
-                    });
-                    
-                    imported++;
-                    console.log(`  ✅ Імпортовано: ${title}`);
-                } catch (error) {
-                    console.error('  ❌ Помилка імпорту:', error);
-                    console.error('  Деталі помилки:', error.message, error.stack);
-                    errors++;
+                    const progress = Math.round((imported + errors) / selectedPoemsList.length * 100);
+                    progressFill.style.width = progress + '%';
+                    progressFill.textContent = progress + '%';
                 }
 
-                const progress = Math.round((imported + errors) / selectedPoemsList.length * 100);
-                progressFill.style.width = progress + '%';
-                progressFill.textContent = progress + '%';
+                // Зберігаємо весь масив назад
+                if (imported > 0) {
+                    console.log(`\n💾 Збереження ${postsArray.length} постів в Firebase...`);
+                    await set(postsRef, postsArray);
+                    console.log('✅ Збережено успішно!');
+                }
+
+            } catch (error) {
+                console.error('❌ Критична помилка:', error);
+                errors = selectedPoemsList.length;
             }
 
             console.log(`\n📊 Результати: імпортовано ${imported}, помилок ${errors}`);
