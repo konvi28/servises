@@ -2125,7 +2125,7 @@
                     <!-- Search -->
                     <div class="search-container">
                         <div class="search-box">
-                            <input type="text" class="search-input" id="searchInput" placeholder="Пошук публікацій...">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Пошук публікації...">
                             <button class="search-btn" onclick="searchPosts()">🔍 Знайти</button>
                             <button class="clear-search-btn" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">✕ Скинути</button>
                         </div>
@@ -2136,7 +2136,7 @@
                             </label>
                             <label class="search-option">
                                 <input type="radio" name="searchType" value="title">
-                                <span>За назвами</span>
+                                <span>За назвою</span>
                             </label>
                             <label class="search-option">
                                 <input type="radio" name="searchType" value="content">
@@ -2684,7 +2684,10 @@
             document.getElementById('themeSettingsView').style.display = 'none';
             
             document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
-            if (e) e.target.closest('a').classList.add('active');
+            if (e && e.target && e.target.closest) {
+                const link = e.target.closest('a');
+                if (link) link.classList.add('active');
+            }
             
             renderAdminPosts();
             initializeAdminTabs();
@@ -2697,7 +2700,10 @@
             document.getElementById('themeSettingsView').style.display = 'none';
             
             document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
-            if (e && e.target.closest('a')) e.target.closest('a').classList.add('active');
+            if (e && e.target && e.target.closest) {
+                const link = e.target.closest('a');
+                if (link) link.classList.add('active');
+            }
             
             if (!skipReset) {
                 resetEditor();
@@ -2712,7 +2718,10 @@
             document.getElementById('themeSettingsView').style.display = 'block';
             
             document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
-            if (e) e.target.closest('a').classList.add('active');
+            if (e && e.target && e.target.closest) {
+                const link = e.target.closest('a');
+                if (link) link.classList.add('active');
+            }
             
             // Відобразити активну тему
             updateThemeCards();
@@ -3365,6 +3374,7 @@
 
         // Auto-collapse header on scroll
         let lastScrollTop = 0;
+        let headerLocked = false; // Додаємо оголошення змінної
         window.addEventListener('scroll', () => {
             if (headerLocked) return;
 
