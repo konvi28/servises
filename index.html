@@ -6,7 +6,7 @@
 	<link rel="icon" type="image/webp" href="logo.webp">
     <link rel="shortcut icon" type="image/webp" href="logo.webp">
     <link rel="apple-touch-icon" href="logo.webp">
-    <title>Поетичні роздуми 1.98</title>
+    <title>Поетичні роздуми 1.99</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Philosopher:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -2418,6 +2418,10 @@
     </div>
 
     <!-- Firebase SDK -->
+    <script>
+        // Глобальна змінна для header lock
+        window.headerLocked = false;
+    </script>
     <script type="module">
 
 		
@@ -3375,7 +3379,7 @@
         // Auto-collapse header on scroll
         let lastScrollTop = 0;
         window.addEventListener('scroll', () => {
-            if (typeof headerLocked !== 'undefined' && headerLocked) return;
+            if (window.headerLocked) return;
 
             const header = document.getElementById('siteHeader');
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -3389,14 +3393,12 @@
         });
     </script>
 	<script>
-let headerLocked = false; // Глобальна змінна для обох блоків
-
 function toggleHeader() {
     const header = document.getElementById('siteHeader');
     const toggle = document.getElementById('headerToggle');
 
     header.classList.toggle('expanded');
-    headerLocked = header.classList.contains('expanded');
+    window.headerLocked = header.classList.contains('expanded');
 
     toggle.textContent = header.classList.contains('expanded') ? '▲' : '▼';
 }
