@@ -3374,9 +3374,8 @@
 
         // Auto-collapse header on scroll
         let lastScrollTop = 0;
-        let headerLocked = false; // Додаємо оголошення змінної
         window.addEventListener('scroll', () => {
-            if (headerLocked) return;
+            if (typeof headerLocked !== 'undefined' && headerLocked) return;
 
             const header = document.getElementById('siteHeader');
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -3390,6 +3389,8 @@
         });
     </script>
 	<script>
+let headerLocked = false; // Глобальна змінна для обох блоків
+
 function toggleHeader() {
     const header = document.getElementById('siteHeader');
     const toggle = document.getElementById('headerToggle');
