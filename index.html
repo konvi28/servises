@@ -3,9 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Імпорт віршів з Excel (OCR)</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+	<link rel="icon" type="image/webp" href="logo.webp">
+    <link rel="shortcut icon" type="image/webp" href="logo.webp">
+    <link rel="apple-touch-icon" href="logo.webp">
+    <title>Поетичні роздуми 1.98</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Philosopher:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #8b6f47;
+            --accent-light: #b8956a;
+            --accent-dark: #6d5638;
+            --bg-main: #faf8f3;
+            --bg-card: #ffffff;
+            --bg-secondary: #f0ebe3;
+            --text-main: #1a1a1a;
+            --text-light: #666666;
+            --text-lighter: #999999;
+            --border: #e8e4dc;
+            --border-light: #f5f0e8;
+            --shadow: rgba(0, 0, 0, 0.08);
+        }
+
+        /* Травянисто-зелена тема */
+        [data-theme="green"] {
+            --primary: #2d5016;
+            --secondary: #3d6b1f;
+            --accent: #6b8e23;
+            --accent-light: #9acd32;
+            --accent-dark: #4a5f1a;
+            --bg-main: #f5f9f0;
+            --bg-card: #ffffff;
+            --bg-secondary: #e8f3e0;
+            --text-main: #1a1a1a;
+            --text-light: #5a6b4a;
+            --text-lighter: #7a8b6a;
+            --border: #d4e7c5;
+            --border-light: #e8f3e0;
+            --shadow: rgba(107, 142, 35, 0.1);
+        }
+
+        /* Морська синя тема */
+        [data-theme="ocean"] {
+            --primary: #1b4965;
+            --secondary: #2c6b8f;
+            --accent: #5fa8d3;
+            --accent-light: #90c2e7;
+            --accent-dark: #3d7a9f;
+            --bg-main: #f0f7fb;
+            --bg-card: #ffffff;
+            --bg-secondary: #e3f1f7;
+            --text-main: #1a1a1a;
+            --text-light: #567a92;
+            --text-lighter: #7a9ab0;
+            --border: #d4e8f5;
+            --border-light: #e8f4fa;
+            --shadow: rgba(95, 168, 211, 0.1);
+        }
+
+        /* Фіолетово-лавандова тема */
+        [data-theme="lavender"] {
+            --primary: #4a2c62;
+            --secondary: #5e3a7d;
+            --accent: #8b5fb0;
+            --accent-light: #b794cc;
+            --accent-dark: #6d4a89;
+            --bg-main: #f8f5fb;
+            --bg-card: #ffffff;
+            --bg-secondary: #f0e9f7;
+            --text-main: #1a1a1a;
+            --text-light: #6d5578;
+            --text-lighter: #8d7598;
+            --border: #e6dced;
+            --border-light: #f2ebf5;
+            --shadow: rgba(139, 95, 176, 0.1);
+        }
+
+        /* Теракотово-рожева тема */
+        [data-theme="terracotta"] {
+            --primary: #8b4513;
+            --secondary: #a0522d;
+            --accent: #d2691e;
+            --accent-light: #e9967a;
+            --accent-dark: #b35a15;
+            --bg-main: #fdf7f4;
+            --bg-card: #ffffff;
+            --bg-secondary: #f8ede7;
+            --text-main: #1a1a1a;
+            --text-light: #8b6854;
+            --text-lighter: #a88874;
+            --border: #f0dfce;
+            --border-light: #f8ede7;
+            --shadow: rgba(210, 105, 30, 0.1);
+        }
+
+        /* Темна тема */
+        [data-theme="dark"] {
+            --primary: #e8e6e3;
+            --secondary: #d0cec9;
+            --accent: #c9a961;
+            --accent-light: #e0c78a;
+            --accent-dark: #b08f4a;
+            --bg-main: #1a1a1a;
+            --bg-card: #2d2d2d;
+            --bg-secondary: #242424;
+            --text-main: #e8e6e3;
+            --text-light: #a8a8a8;
+            --text-lighter: #888888;
+            --border: #404040;
+            --border-light: #353535;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,739 +123,2309 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+            font-family: 'Cormorant Garamond', serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.8;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .upload-section {
-            text-align: center;
-            padding: 40px;
-            border: 3px dashed #667eea;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .upload-section:hover {
-            background: #f8f9ff;
-            border-color: #764ba2;
-        }
-
-        .upload-section.dragover {
-            background: #e8ebff;
-            border-color: #764ba2;
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-
-        .stats {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            flex: 1;
-            min-width: 120px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            opacity: 0.9;
-            font-size: 0.85em;
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(86, 171, 47, 0.4);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(235, 51, 73, 0.4);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .poem-grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .poem-item {
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            padding: 20px;
-            padding-bottom: 60px;
-            background: white;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .poem-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .poem-item.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-        }
-
-        .poem-item.duplicate {
-            border-color: #ffc107;
-            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
-        }
-
-        .duplicate-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: #ffc107;
-            color: #000;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .poem-header {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            align-items: flex-start;
-        }
-
-        .poem-checkbox {
-            width: 25px;
-            height: 25px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .poem-number {
-            font-weight: 600;
-            color: #667eea;
-            min-width: 40px;
-        }
-
-        .poem-title-input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .poem-title-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .poem-content {
-            width: 100%;
-            min-height: 150px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-            line-height: 1.6;
-            resize: vertical;
-            transition: all 0.3s;
-        }
-
-        .poem-content:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .ocr-warnings {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            font-size: 0.9em;
-            color: #856404;
-        }
-
-        .delete-btn {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        /* Модальне вікно */
-        .modal {
-            display: none;
+        /* PUBLIC SITE STYLES */
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 111, 71, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 111, 71, 0.04) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-card);
+            border-bottom: 2px solid var(--border);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
-        .modal-content {
-            background: white;
-            border-radius: 20px;
+        .header-main {
+            text-align: center;
+            
+            transition: all 0.3s ease;
+        }
+
+        header.expanded .header-main {
+            padding: 0.3rem 2rem 1rem;
+        }
+
+        header h1 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+        }
+
+        header.expanded h1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-style: italic;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        header.expanded p {
+            opacity: 1;
+            max-height: 50px;
+            margin-top: 0.5rem;
+        }
+
+        .header-ornament {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin: 0.5rem auto 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        header.expanded .header-ornament {
+            opacity: 1;
+
+        }
+
+        .header-controls {
+            padding: 1rem 2rem;
+            background: var(--bg-main);
+            border-top: 1px solid var(--border);
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            transition: all 0.35s ease;
+        }
+
+        header.expanded .header-controls {
+            max-height: 500px;
+            
+            
+            opacity: 1;
+        }
+
+        .header-controls-inner {
             max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-
-        .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px 30px;
-            border-radius: 20px 20px 0 0;
+            margin: 0 auto;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
         }
-
-        .modal-header h2 {
-            font-size: 1.5em;
-            margin: 0;
+        
+        /* Зменшений відступ між хештегами та кнопкою "До змісту" */
+        .hashtag-filter-container + div {
+            margin-top: -0.75rem !important;
         }
-
-        .close-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+			
+        .header-toggle {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
             color: white;
-            width: 35px;
-            height: 35px;
+            border: none;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            font-size: 1.5em;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 101;
         }
 
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.1);
+        .header-toggle:hover {
+            background: var(--accent-light);
+            transform: translateX(-50%) scale(1.1);
         }
 
-        .modal-body {
-            padding: 30px;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem 3rem;
+            position: relative;
+            z-index: 1;
+            margin-top: 2rem;
         }
 
-        .edit-poem {
-            margin-bottom: 25px;
-            padding-bottom: 25px;
-            border-bottom: 2px solid #e0e0e0;
+        /* Table of Contents */
+        .toc-container {
+            position: sticky;
+            top: 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px var(--shadow);
         }
 
-        .edit-poem:last-child {
-            border-bottom: none;
-        }
-
-        .edit-poem-number {
-            display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .edit-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            margin-top: 15px;
-            display: block;
-        }
-
-        .edit-input, .edit-select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .edit-input:focus, .edit-select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .edit-textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-            line-height: 1.6;
-            resize: vertical;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .edit-textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .hashtag-suggestions {
+        .toc-header {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 0;
+            font-weight: 700;
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-
-        .hashtag-tag {
-            display: inline-flex;
             align-items: center;
-            background: #e0e0e0;
-            color: #333;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9em;
+            gap: 0.5rem;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
         }
 
-        .hashtag-tag:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .hashtag-tag.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-        }
-
-        .spell-check-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+        .toc-toggle {
+            background: none;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            color: var(--accent);
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 1rem;
+            padding: 0;
+            margin-left: auto;
         }
 
-        .spell-check-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        .toc-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
         }
 
-        .spell-check-issues {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
+        .toc-list.collapsed {
             display: none;
         }
 
-        .spell-check-issues.active {
-            display: block;
+        .toc-item {
+            margin-bottom: 0.35rem;
         }
 
-        .spell-issue {
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
+        .toc-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.6rem;
+            color: var(--text-main);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .toc-link:hover {
+            background: var(--accent-light);
+            color: white;
+            padding-left: 0.8rem;
+        }
+
+        .toc-link-text {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .toc-category {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-style: italic;
+            white-space: nowrap;
+        }
+
+        .toc-link:hover .toc-category {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .toc-type {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 2px 6px;
             border-radius: 8px;
-        }
-
-        .spell-issue-word {
+            background: var(--bg-main);
+            color: var(--text-light);
             font-weight: 600;
-            color: #f5576c;
         }
 
-        .spell-suggestions {
+        .toc-number {
+            display: inline-block;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-right: 0.5rem;
+            min-width: 2rem;
+        }
+
+        .toc-type.poetry {
+            background: #e8f4fd;
+            color: #2271b1;
+        }
+
+        .toc-type.thought {
+            background: #fef8e7;
+            color: #8b6f47;
+        }
+
+        /* Hashtags */
+        .post-hashtags {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 0.5rem;
         }
 
-        .spell-suggestion {
-            background: #e8f4f8;
-            border: 1px solid #b8e0f0;
-            padding: 4px 12px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-
-        .spell-suggestion:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .modal-footer {
-            padding: 20px 30px;
-            border-top: 2px solid #e0e0e0;
+        .post-actions {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
-            gap: 15px;
+            justify-content: flex-end;
+            gap: 0.5rem;
         }
 
-        .btn-cancel {
+        .btn-download-image,
+        .btn-favorite,
+        .btn-to-toc {
+            padding: 8px 10px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-favorite {
             background: #6c757d;
+        }
+
+        .btn-to-toc {
+            background: var(--bg-card);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .btn-favorite.active {
+            background: #dc3545;
+        }
+
+        .btn-download-image:hover,
+        .btn-favorite:hover,
+        .btn-to-toc:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 111, 71, 0.3);
+        }
+
+        .btn-download-image:hover {
+            background: var(--accent-light);
+        }
+
+        .btn-to-toc:hover {
+            background: var(--accent);
             color: white;
         }
 
-        .btn-cancel:hover {
+        .btn-favorite:hover {
             background: #5a6268;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: #e0e0e0;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 20px;
-            display: none;
+        .btn-favorite.active:hover {
+            background: #c82333;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .btn-download-image:active,
+        .btn-favorite:active,
+        .btn-to-toc:active {
+            transform: translateY(0);
+        }
+
+        .btn-download-image:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hashtag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--bg-main);
+            color: var(--accent);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .hashtag:hover {
+            background: var(--accent);
             color: white;
+            transform: translateY(-2px);
+        }
+
+        .hashtag-filter-container {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .hashtag-filter-label {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
             font-weight: 600;
         }
 
-        .message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
+        .hashtag-filters {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            padding-bottom: 0.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--border);
         }
 
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .hashtag-filters::-webkit-scrollbar {
+            height: 6px;
         }
 
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .hashtag-filters::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 3px;
         }
 
-        .message.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
+        .hashtag-filters::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .hashtag-filters::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+
+        .hashtag-filter {
+            padding: 4px 12px;
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            color: var(--text-light);
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hashtag-filter:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .hashtag-filter.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .clear-hashtag-filter {
+            padding: 4px 12px;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .clear-hashtag-filter:hover {
+            color: var(--accent-light);
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            background: var(--bg-main);
+            position: relative;
+            z-index: 2;
+            padding: 1rem 0;
+        }
+
+        .font-size-control {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .font-size-label {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .font-size-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--border);
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .font-size-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .font-size-slider::-webkit-slider-thumb:hover {
+            background: var(--accent-light);
+            transform: scale(1.2);
+        }
+
+        .font-size-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+        }
+
+        .font-size-slider::-moz-range-thumb:hover {
+            background: var(--accent-light);
+            transform: scale(1.2);
+        }
+
+        .font-size-value {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.85rem;
+            color: var(--accent);
+            font-weight: 700;
+            min-width: 25px;
+            text-align: center;
+        }
+        .search-container {
+            margin: 0;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 9px 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.95rem;
+            background: var(--bg-card);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(139, 111, 71, 0.1);
+            background: #fff;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-light);
+            opacity: 0.7;
+        }
+
+        .search-options {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            justify-content: center;
+        }
+
+        .search-option {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            transition: color 0.3s ease;
+        }
+
+        .search-option:hover {
+            color: var(--accent);
+        }
+
+        .search-option input[type="radio"] {
+            cursor: pointer;
+            accent-color: var(--accent);
+        }
+
+        .search-btn {
+            padding: 9px 18px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(139, 111, 71, 0.2);
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 111, 71, 0.35);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(139, 111, 71, 0.2);
+        }
+
+        .clear-search-btn {
+            padding: 9px 18px;
+            background: #f5f3ef;
+            color: var(--text-main);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .clear-search-btn:hover {
+            background: #e8e4dc;
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-search-btn:active {
+            transform: translateY(0);
+        }
+
+        .search-results-info {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .search-results-info strong {
+            color: var(--accent);
+        }
+
+        .font-size-label {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .font-size-btn {
+            background: var(--bg-main);
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            min-width: 35px;
+        }
+
+        .font-size-btn[data-size="extra-small"] {
+            font-size: 0.65rem;
+        }
+
+        .font-size-btn[data-size="small"] {
+            font-size: 0.75rem;
+        }
+
+        .font-size-btn[data-size="medium"] {
+            font-size: 0.9rem;
+        }
+
+        .font-size-btn[data-size="large"] {
+            font-size: 1.1rem;
+        }
+
+        .font-size-btn:hover {
+            background: var(--accent-light);
+            color: white;
+            border-color: var(--accent-light);
+        }
+
+        .font-size-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 24px;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+
+        .filter-tab:hover,
+        .filter-tab.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .posts-grid {
+            display: grid;
+            gap: 2.5rem;
+            background: var(--bg-main);
+            position: relative;
+            z-index: 1;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: all 0.4s ease;
+            animation: fadeInUp 0.6s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: transform 0.4s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow);
+        }
+
+        .post-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .post-type {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-light);
+            color: white;
+            border-radius: 15px;
+            font-family: 'Philosopher', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .post-card h2 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .post-date {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            font-style: italic;
+        }
+
+        .post-content {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: var(--text-main);
+            white-space: pre-wrap;
+            font-family: Georgia, 'Times New Roman', serif;
+            font-weight: 400;
+            transition: font-size 0.3s ease;
+        }
+
+        .post-content.poetry {
+            font-style: italic;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+        }
+
+        .empty-state h3 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 4rem 2rem;
+            color: var(--text-light);
+            font-size: 1.2rem;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            background: var(--bg-main);
+            position: relative;
+            z-index: 1;
+            padding: 1rem 0;
+        }
+
+        .pagination-btn {
+            padding: 8px 14px;
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .pagination-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            padding: 0 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 2rem 5rem;
+            margin-top: 2rem;
+            border-top: 2px solid var(--border);
+            color: var(--text-light);
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .admin-login-btn {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #999;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            opacity: 0.6;
+        }
+
+        .admin-login-btn:hover {
+            opacity: 0.9;
+            background: #777;
+            transform: translateX(-50%) translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* LOGIN MODAL */
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 3000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .login-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-content {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: scaleIn 0.3s ease;
+        }
+
+        .login-content h2 {
+            font-family: 'Philosopher', sans-serif;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .login-error {
+            color: #c0392b;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            background: var(--bg-main);
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: white;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Philosopher', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #d8d4cc;
+        }
+
+        /* ADMIN PANEL STYLES */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f0f1;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .admin-panel.active {
+            display: block;
+        }
+
+        .admin-header {
+            background: #1d2327;
+            color: white;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-header h1 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .admin-header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .admin-user {
+            color: #a7aaad;
+            font-size: 0.9rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-view-site, .btn-logout {
+            background: #2271b1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-view-site:hover {
+            background: #135e96;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid #72aee6;
+            color: #72aee6;
+        }
+
+        .btn-logout:hover {
+            background: #72aee6;
+            color: white;
+        }
+
+        .admin-layout {
+            display: flex;
+            min-height: calc(100vh - 60px);
+        }
+
+        .admin-sidebar {
+            width: 200px;
+            background: #1d2327;
+            color: white;
+            padding: 1rem 0;
+        }
+
+        .admin-menu {
+            list-style: none;
+        }
+
+        .admin-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #a7aaad;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .admin-menu li a:hover,
+        .admin-menu li a.active {
+            background: #2c3338;
+            color: #72aee6;
+        }
+
+        .admin-menu-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .admin-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .admin-content-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .admin-page-header h2 {
+            font-size: 1.8rem;
+            color: #1d2327;
+            font-weight: 400;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-add-new {
+            background: #2271b1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-add-new:hover {
+            background: #135e96;
+        }
+
+        .admin-tabs {
+            background: white;
+            border: 1px solid #c3c4c7;
+        }
+
+        .admin-tabs-nav {
+            display: flex;
+            border-bottom: 1px solid #c3c4c7;
+            padding: 0 1rem;
+        }
+
+        .admin-tab {
+            padding: 12px 16px;
+            color: #2c3338;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .admin-tab:hover {
+            color: #2271b1;
+        }
+
+        .admin-tab.active {
+            color: #2271b1;
+            border-bottom-color: #2271b1;
+        }
+
+        .tab-count {
+            background: #f0f0f1;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin-left: 5px;
+        }
+
+        .posts-table-container {
+            background: white;
+            border: 1px solid #c3c4c7;
+            border-top: none;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+        }
+
+        .posts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .posts-table thead {
+            background: #f6f7f7;
+        }
+
+        .posts-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3338;
+            border-bottom: 1px solid #c3c4c7;
+            font-size: 0.9rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .posts-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #dcdcde;
+            color: #2c3338;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .posts-table tbody tr:hover {
+            background: #f6f7f7;
+        }
+
+        .post-title-cell {
+            font-weight: 600;
+            color: #2271b1;
+            cursor: pointer;
+        }
+
+        .post-title-cell:hover {
+            color: #135e96;
+        }
+
+        .post-row-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .post-row-actions a {
+            color: #2271b1;
+            text-decoration: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .post-row-actions a:hover {
+            color: #135e96;
+        }
+
+        .post-row-actions .delete {
+            color: #b32d2e;
+        }
+
+        .post-row-actions .delete:hover {
+            color: #8a2424;
+        }
+
+        .post-type-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            background: #f0f0f1;
+            border-radius: 3px;
+            font-size: 0.85rem;
+            color: #2c3338;
+        }
+
+        .post-type-badge.poetry {
+            background: #e8f4fd;
+            color: #2271b1;
+        }
+
+        .post-type-badge.thought {
+            background: #fef8e7;
+            color: #8b6f47;
+        }
+
+        .post-hashtags-admin {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+            margin-top: 0.5rem;
+        }
+
+        .hashtag-admin {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--bg-main);
+            color: var(--accent);
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hashtag-admin:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Admin Search */
+        .admin-search-box {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .admin-search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #8c8f94;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .admin-search-input:focus {
+            outline: none;
+            border-color: #2271b1;
+            box-shadow: 0 0 0 1px #2271b1;
+        }
+
+        .admin-search-btn {
+            padding: 8px 16px;
+            background: #2271b1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: all 0.2s;
+        }
+
+        .admin-search-btn:hover {
+            background: #135e96;
+        }
+
+        .editor-container {
+            background: white;
+            border: 1px solid #c3c4c7;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+        }
+
+        /* Theme Settings */
+        .theme-settings-container {
+            background: white;
+            border: 1px solid #c3c4c7;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+            padding: 2rem;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .theme-card {
+            border: 2px solid #dcdcde;
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .theme-card:hover {
+            border-color: #2271b1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-card.active {
+            border-color: #2271b1;
+            background: #f0f6fc;
+        }
+
+        .theme-preview {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            height: 60px;
+        }
+
+        .theme-color {
+            flex: 1;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-name {
+            font-weight: 600;
+            color: #1d2327;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .theme-check {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 28px;
+            height: 28px;
+            background: #2271b1;
+            color: white;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .theme-card.active .theme-check {
+            display: flex;
+        }
+
+        .theme-actions {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dcdcde;
+        }
+
+        .editor-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .editor-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #1d2327;
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .editor-form input[type="text"],
+        .editor-form select,
+        .editor-form textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #8c8f94;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Cormorant Garamond', serif;
+            transition: all 0.2s;
+        }
+
+        .editor-form input[type="text"]:focus,
+        .editor-form select:focus,
+        .editor-form textarea:focus {
+            outline: none;
+            border-color: #2271b1;
+            box-shadow: 0 0 0 1px #2271b1;
+        }
+
+        .editor-form textarea {
+            min-height: 300px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        .editor-actions {
+            display: flex;
+            gap: 1rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dcdcde;
+            margin-top: 2rem;
+        }
+
+        .btn-publish {
+            background: #2271b1;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-publish:hover {
+            background: #135e96;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: #2271b1;
+            border: 1px solid #2271b1;
+            padding: 10px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .btn-cancel:hover {
+            background: #f0f0f1;
+        }
+
+        .admin-empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border: 1px solid #c3c4c7;
+            border-top: none;
+        }
+
+        .admin-empty-state h3 {
+            font-size: 1.3rem;
+            color: #2c3338;
+            margin-bottom: 1rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .admin-empty-state p {
+            color: #646970;
+            margin-bottom: 1.5rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .firebase-notice {
+            background: #e8f4fd;
+            border: 1px solid #2271b1;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .firebase-notice h3 {
+            color: #2271b1;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .firebase-notice p {
+            color: #1d2327;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         @media (max-width: 768px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
+            /* Компактна шапка для мобільних */
+            header {
+                position: sticky;
+                top: 0;
             }
 
-            .controls {
+            header h1 {
+                font-size: 1.3rem;
+            }
+
+            header.expanded h1 {
+                font-size: 1.3rem;
+            }
+
+            .header-main {
+                padding: 0.75rem 0.75rem 0.5rem;
+                position: relative;
+            }
+
+            header.expanded .header-main {
+                padding: 0.75rem 0.75rem 0.5rem;
+            }
+
+            .header-ornament {
+                display: none;
+            }
+
+            header p {
+                font-size: 0.85rem;
+            }
+
+            /* Контроли завжди приховані, показуються тільки при expanded */
+            .header-controls {
+                max-height: 0 !important;
+                opacity: 0 !important;
+                padding: 0 !important;
+            }
+
+            header.expanded .header-controls {
+                max-height: 600px !important;
+                opacity: 1 !important;
+                padding: 0.75rem 0 !important;
+            }
+
+            .header-controls-inner {
+                gap: 0.75rem;
+                padding: 0 0.75rem;
+            }
+            
+            /* Зменшений відступ між хештегами та кнопкою в мобільній версії */
+            .hashtag-filter-container + div {
+                margin-top: -0.5rem !important;
+            }
+
+            .header-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 1.1rem;
+                bottom: -18px;
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% {
+                    box-shadow: 0 0 0 0 rgba(139, 111, 71, 0.7);
+                }
+                50% {
+                    box-shadow: 0 0 0 8px rgba(139, 111, 71, 0);
+                }
+            }
+
+            header.expanded .header-toggle {
+                animation: none;
+            }
+
+            /* Зменшуємо відступи контейнера */
+            .container {
+                padding: 1rem 0.75rem 2rem;
+                margin-top: 0.5rem;
+            }
+
+            /* Зменшуємо відступи карток публікацій */
+            .container {
+                margin-top: 1.5rem;
+                padding: 1rem 1rem 2rem;
+            }
+            
+            /* Додаємо відступ зверху тільки для фільтрів */
+            .filter-tabs {
+                padding-top: 2.5rem;
+            }
+            
+            .post-card {
+                padding: 1.25rem;
+                border-radius: 8px;
+            }
+
+            .post-card h2 {
+                font-size: 1.5rem;
+            }
+
+            .post-content {
+                font-size: 1.05rem;
+            }
+
+            /* Зменшуємо відступи для TOC */
+            .toc-container {
+                padding: 0.75rem 1rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Зменшуємо відступи фільтрів */
+            .filter-tabs {
+                gap: 0.5rem;
+                margin-bottom: 1rem;
+                padding: 0 0.5rem;
+            }
+
+            .filter-tab {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            /* Компактний пошук */
+            .search-box {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .search-input {
+                flex: 1;
+                min-width: 200px;
+                font-size: 0.9rem;
+            }
+
+            .search-btn {
+                flex: 0 0 auto;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .clear-search-btn {
+                flex: 0 0 auto;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+
+            /* Зменшуємо відступи хештег-контейнера */
+            .hashtag-filter-container {
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+            }
+
+            /* Зменшуємо відступи футера */
+            footer {
+                padding: 2rem 0.75rem 4rem;
+            }
+
+            .admin-layout {
                 flex-direction: column;
-                align-items: stretch;
             }
 
-            .btn, .search-box {
+            .admin-sidebar {
                 width: 100%;
             }
-
-            .modal-content {
-                margin: 10px;
-                max-height: 95vh;
+            
+            /* Адаптивна шапка адмін-панелі */
+            .admin-header {
+                padding: 0.75rem 1rem;
+                height: auto;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .admin-header h1 {
+                font-size: 1rem;
+                width: 100%;
+            }
+            
+            .admin-header-actions {
+                flex-direction: row;
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .admin-user {
+                font-size: 0.8rem;
+                flex: 1 1 100%;
+            }
+            
+            .btn-view-site,
+            .btn-logout {
+                padding: 6px 12px;
+                font-size: 0.8rem;
             }
 
-            .modal-footer {
-                flex-direction: column;
+            .posts-table {
+                font-size: 0.85rem;
+            }
+
+            .posts-table th,
+            .posts-table td {
+                padding: 8px 10px;
+            }
+        }
+
+        /* Для дуже маленьких екранів */
+        @media (max-width: 480px) {
+            /* Максимально компактна шапка */
+            header h1 {
+                font-size: 1.1rem;
+            }
+
+            header p {
+                font-size: 0.75rem;
+                margin-top: 0.25rem;
+            }
+
+            .header-main {
+                padding: 0.5rem 0.5rem 0.35rem;
+            }
+
+            header.expanded .header-main {
+                padding: 0.5rem 0.5rem 0.35rem;
+            }
+
+            .header-toggle {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+                bottom: -16px;
+            }
+
+            /* Мінімальні відступи */
+            .container {
+                padding: 0.75rem 0.5rem 1.5rem;
+            }
+
+            .header-controls-inner {
+                padding: 0 0.5rem;
+            }
+            
+            /* Ще менший відступ між хештегами та кнопкою на малих екранах */
+            .hashtag-filter-container + div {
+                margin-top: -0.4rem !important;
+            }
+
+            /* Дуже компактні картки */
+            .post-card {
+                padding: 1rem;
+                border-radius: 6px;
+            }
+
+            .post-card h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .post-type {
+                font-size: 0.75rem;
+                padding: 3px 10px;
+            }
+
+            .post-date {
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+            }
+
+            .post-content {
+                font-size: 1rem;
+                line-height: 1.65;
+            }
+
+            /* Компактний TOC */
+            .toc-container {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .toc-header {
+                font-size: 1rem;
+            }
+
+            .toc-link {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            /* Компактні фільтри */
+            .filter-tabs {
+                padding: 0 0.25rem;
+                gap: 0.35rem;
+            }
+
+            .filter-tab {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            /* Компактний пошук */
+            .search-input {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+
+            .search-btn,
+            .clear-search-btn {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+
+            /* Компактні хештеги */
+            .hashtag {
+                padding: 3px 10px;
+                font-size: 0.8rem;
+            }
+
+            .hashtag-filter-container {
+                padding: 0.5rem;
+            }
+
+            /* Компактний footer */
+            footer {
+                padding: 1.5rem 0.5rem 3.5rem;
+            }
+            
+            /* Ультра-компактна адмін шапка */
+            .admin-header {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .admin-header h1 {
+                font-size: 0.9rem;
+            }
+            
+            .admin-user {
+                font-size: 0.75rem;
+            }
+            
+            .btn-view-site,
+            .btn-logout {
+                padding: 5px 10px;
+                font-size: 0.75rem;
+            }
+
+            footer p {
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 Імпорт віршів з Excel (OCR)</h1>
-            <p class="subtitle">Завантажте Excel файл з розпізнаними віршами</p>
+    <!-- PUBLIC SITE -->
+    <div id="publicSite">
+        <header id="siteHeader">
+            <div class="header-main">
+                <h1>Думки та поезія KonVi</h1>
+                <div class="header-ornament"></div>
+                <p>Олег Красовський</p>
+            <div class="header-controls">
+                <div class="header-controls-inner">
+                    <!-- Search -->
+                    <div class="search-container">
+                        <div class="search-box">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Пошук публікацій...">
+                            <button class="search-btn" onclick="searchPosts()">🔍 Знайти</button>
+                            <button class="clear-search-btn" onclick="clearSearch()" id="clearSearchBtn" style="display: none;">✕ Скинути</button>
+                        </div>
+                        <div class="search-options">
+                            <label class="search-option">
+                                <input type="radio" name="searchType" value="all" checked>
+                                <span>Всюди</span>
+                            </label>
+                            <label class="search-option">
+                                <input type="radio" name="searchType" value="title">
+                                <span>За назвою</span>
+                            </label>
+                            <label class="search-option">
+                                <input type="radio" name="searchType" value="content">
+                                <span>За словом/фразою</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Font Size Control -->
+                    <div class="font-size-control">
+                        <span class="font-size-label">Розмір:</span>
+                        <input type="range" class="font-size-slider" id="fontSizeSlider" min="0" max="100" value="50" step="5">
+                        <span class="font-size-value" id="fontSizeValue">100%</span>
+                    </div>
+
+                    <!-- Hashtag Filter -->
+                    <div class="hashtag-filter-container" id="hashtagFilterContainer" style="display: none;">
+                        <div class="hashtag-filter-label">Фільтрувати за хештегами:</div>
+                        <div class="hashtag-filters" id="hashtagFilters"></div>
+                    </div>
+                </div>
+            </div>
+			
+			
+			
+			
+			</div>
+            
+
+            
+            <button class="header-toggle" onclick="toggleHeader()" id="headerToggle">▼</button>
         </header>
 
-        <div class="content">
-            <div class="upload-section" id="uploadSection" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📁</div>
-                <h2>Перетягніть Excel файл сюди або клацніть для вибору</h2>
-                <p style="margin-top: 10px; color: #666;">Підтримуються формати: .xlsx, .xls</p>
-                <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="handleFile(event)">
+        <div class="container">
+            <!-- Search Results Info -->
+            <div class="search-results-info" id="searchResultsInfo" style="display: none;"></div>
+
+			        <!-- Filter Tabs -->
+                    <div class="filter-tabs">
+                        <div class="filter-tab active" data-filter="all">Усі</div>
+                        <div class="filter-tab" data-filter="poetry">Поезія</div>
+                        <div class="filter-tab" data-filter="thought">Думки</div>
+                        <div class="filter-tab" data-filter="favorites">⭐ Обране</div>
+                    </div>
+			
+            <!-- Table of Contents -->
+            <div class="toc-container" id="tocContainer" style="display: none;">
+                <div class="toc-header" onclick="toggleTOC()">
+                    📑 Зміст
+                    <button class="toc-toggle" id="tocToggle">▶</button>
+                </div>
+                <ul class="toc-list collapsed" id="tocList"></ul>
             </div>
 
-            <div id="mainContent" style="display: none;">
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalCount">0</div>
-                        <div class="stat-label">Знайдено</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="selectedCount">0</div>
-                        <div class="stat-label">Обрано</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="duplicateCount">0</div>
-                        <div class="stat-label">Дублікатів</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="warningCount">0</div>
-                        <div class="stat-label">Помилок OCR</div>
-                    </div>
+            <div class="posts-grid" id="postsGrid">
+                <div class="loading">Завантаження публікацій...</div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;"></div>
+        </div>
+
+        <footer>
+            <p>© 2026 Поетичні роздуми. Створено з любов'ю до слова.</p>
+            <button class="admin-login-btn" onclick="showLogin()" title="Вхід до адмін-панелі">Адмін</button>
+        </footer>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div class="login-modal" id="loginModal">
+        <div class="login-content">
+            <h2>🔒 Вхід до адмін-панелі</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminPassword">Пароль</label>
+                    <input type="password" id="adminPassword" placeholder="Введіть пароль..." required>
+                    <div class="login-error" id="loginError">Невірний пароль</div>
                 </div>
 
-                <div class="controls">
-                    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Пошук...">
-                    <button class="btn btn-primary" onclick="selectAll()">Обрати всі</button>
-                    <button class="btn btn-primary" onclick="selectNew()">Тільки нові</button>
-                    <button class="btn btn-primary" onclick="deselectAll()">Скасувати</button>
-                    <button class="btn btn-primary" onclick="showDuplicateReport()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔍 Детальна перевірка дублікатів</button>
-                    <button class="btn btn-success" onclick="importSelected()" id="importBtn">✨ Імпортувати</button>
-                    <button class="btn btn-danger" onclick="showManageModal()">🗑️ Керувати постами</button>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">Увійти</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeLogin()">Скасувати</button>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="progress-bar" id="progressBar">
-                    <div class="progress-fill" id="progressFill">0%</div>
+    <!-- ADMIN PANEL -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="admin-header">
+            <h1>📝 Поетичні роздуми - Адмін-панель</h1>
+            <div class="admin-header-actions">
+                <span class="admin-user">Адміністратор</span>
+                <button class="btn-view-site" onclick="viewSite()">👁 Переглянути сайт</button>
+                <button class="btn-logout" onclick="logout()">Вийти</button>
+            </div>
+        </div>
+
+        <div class="admin-layout">
+            <div class="admin-sidebar">
+                <ul class="admin-menu">
+                    <li><a href="#" class="active" onclick="showAllPosts(event)">
+                        <span class="admin-menu-icon">📋</span>
+                        Усі публікації
+                    </a></li>
+                    <li><a href="#" onclick="showNewPost(event)">
+                        <span class="admin-menu-icon">➕</span>
+                        Додати нову
+                    </a></li>
+                    <li><a href="#" onclick="showThemeSettings(event)">
+                        <span class="admin-menu-icon">🎨</span>
+                        Налаштування теми
+                    </a></li>
+                </ul>
+            </div>
+
+            <div class="admin-content">
+                <div class="admin-content-inner">
+                    <!-- Firebase Setup Notice -->
+                    <div class="firebase-notice" id="firebaseNotice" style="display: none;">
+                        <h3>⚠️ Налаштування Firebase</h3>
+                        <p>Для роботи сайту потрібно налаштувати Firebase. Дивіться інструкції нижче.</p>
+                    </div>
+
+                    <!-- ALL POSTS VIEW -->
+                    <div id="allPostsView">
+                        <div class="admin-page-header">
+                            <h2>Публікації</h2>
+                            <button class="btn-add-new" onclick="showNewPost(event)">➕ Додати нову</button>
+                        </div>
+
+                        <!-- Admin Search -->
+                        <div class="admin-search-box">
+                            <input type="text" class="admin-search-input" id="adminSearchInput" placeholder="🔍 Пошук за заголовком, текстом або хештегами...">
+                            <button class="admin-search-btn" onclick="searchAdminPosts()">Знайти</button>
+                            <button class="admin-search-btn" onclick="clearAdminSearch()" id="clearAdminSearchBtn" style="display: none; background: #f0f0f1; color: #2c3338;">✕</button>
+                        </div>
+
+                        <div class="admin-tabs">
+                            <div class="admin-tabs-nav">
+                                <div class="admin-tab active" data-filter="all">
+                                    Усі <span class="tab-count" id="countAll">0</span>
+                                </div>
+                                <div class="admin-tab" data-filter="poetry">
+                                    Поезія <span class="tab-count" id="countPoetry">0</span>
+                                </div>
+                                <div class="admin-tab" data-filter="thought">
+                                    Думки <span class="tab-count" id="countThought">0</span>
+                                </div>
+                            </div>
+
+                            <div id="postsTableContainer">
+                                <div class="loading" style="padding: 2rem;">Завантаження...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDITOR VIEW -->
+                    <div id="editorView" style="display: none;">
+                        <div class="admin-page-header">
+                            <h2 id="editorTitle">Створити публікацію</h2>
+                        </div>
+
+                        <div class="editor-container">
+                            <form class="editor-form" id="editorForm">
+                                <input type="hidden" id="editPostId">
+
+                                <div class="form-group">
+                                    <label for="editorType">Тип публікації</label>
+                                    <select id="editorType" required>
+                                        <option value="poetry">Поезія</option>
+                                        <option value="thought">Думка</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editorTitleInput">Заголовок</label>
+                                    <input type="text" id="editorTitleInput" placeholder="Введіть заголовок..." required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editorContent">Текст</label>
+                                    <textarea id="editorContent" placeholder="Ваші думки або поезія..." required></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="editorHashtags">Хештеги (через кому)</label>
+                                    <input type="text" id="editorHashtags" placeholder="наприклад: любов, природа, роздуми">
+                                    <small style="color: #646970; font-size: 0.85rem; display: block; margin-top: 0.25rem;">Розділяйте хештеги комами. Приклад: весна, любов, душа</small>
+                                </div>
+
+                                <div class="editor-actions">
+                                    <button type="submit" class="btn-publish">Опублікувати</button>
+                                    <button type="button" class="btn-cancel" onclick="cancelEditor()">Скасувати</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- THEME SETTINGS VIEW -->
+                    <div id="themeSettingsView" style="display: none;">
+                        <div class="admin-page-header">
+                            <h2>🎨 Налаштування теми сайту</h2>
+                        </div>
+
+                        <div class="theme-settings-container">
+                            <p style="color: #646970; margin-bottom: 2rem;">Оберіть колірну схему для вашого сайту. Зміни застосовуються миттєво.</p>
+                            
+                            <div class="theme-grid">
+                                <div class="theme-card" data-theme="default" onclick="applyTheme('default')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #faf8f3;"></div>
+                                        <div class="theme-color" style="background: #8b6f47;"></div>
+                                        <div class="theme-color" style="background: #2c3e50;"></div>
+                                    </div>
+                                    <div class="theme-name">Класична бежева</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+
+                                <div class="theme-card" data-theme="green" onclick="applyTheme('green')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #f5f9f0;"></div>
+                                        <div class="theme-color" style="background: #6b8e23;"></div>
+                                        <div class="theme-color" style="background: #2d5016;"></div>
+                                    </div>
+                                    <div class="theme-name">Травянисто-зелена</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+
+                                <div class="theme-card" data-theme="ocean" onclick="applyTheme('ocean')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #f0f7fb;"></div>
+                                        <div class="theme-color" style="background: #5fa8d3;"></div>
+                                        <div class="theme-color" style="background: #1b4965;"></div>
+                                    </div>
+                                    <div class="theme-name">Морська синя</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+
+                                <div class="theme-card" data-theme="lavender" onclick="applyTheme('lavender')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #f8f5fb;"></div>
+                                        <div class="theme-color" style="background: #8b5fb0;"></div>
+                                        <div class="theme-color" style="background: #4a2c62;"></div>
+                                    </div>
+                                    <div class="theme-name">Фіолетово-лавандова</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+
+                                <div class="theme-card" data-theme="terracotta" onclick="applyTheme('terracotta')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #fdf7f4;"></div>
+                                        <div class="theme-color" style="background: #d2691e;"></div>
+                                        <div class="theme-color" style="background: #8b4513;"></div>
+                                    </div>
+                                    <div class="theme-name">Теракотово-рожева</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+
+                                <div class="theme-card" data-theme="dark" onclick="applyTheme('dark')">
+                                    <div class="theme-preview">
+                                        <div class="theme-color" style="background: #1a1a1a;"></div>
+                                        <div class="theme-color" style="background: #c9a961;"></div>
+                                        <div class="theme-color" style="background: #e8e6e3;"></div>
+                                    </div>
+                                    <div class="theme-name">Темна</div>
+                                    <div class="theme-check">✓</div>
+                                </div>
+                            </div>
+
+                            <div class="theme-actions" style="margin-top: 2rem;">
+                                <button class="btn-cancel" onclick="showAllPosts(event)">← Назад до публікацій</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="message" id="message"></div>
-
-                <div class="poem-grid" id="poemGrid"></div>
             </div>
         </div>
     </div>
 
-    <!-- Модальне вікно редагування -->
-    <div class="modal" id="editModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📝 Редагування перед публікацією</h2>
-                <button class="close-btn" onclick="closeEditModal()">×</button>
-            </div>
-            <div class="modal-body" id="editModalBody"></div>
-            <div class="modal-footer">
-                <button class="btn btn-cancel" onclick="closeEditModal()">Скасувати</button>
-                <button class="btn btn-success" onclick="confirmImport()">✨ Опублікувати всі</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальне вікно керування постами -->
-    <div class="modal" id="manageModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🗑️ Керування опублікованими постами</h2>
-                <button class="close-btn" onclick="closeManageModal()">×</button>
-            </div>
-            <div class="modal-body" id="manageModalBody">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Завантаження постів...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальне вікно звіту про дублікати -->
-    <div class="modal" id="duplicateReportModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🔍 Детальний звіт про дублікати</h2>
-                <button class="close-btn" onclick="closeDuplicateReport()">×</button>
-            </div>
-            <div class="modal-body" id="duplicateReportBody">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Аналіз...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-        import { getDatabase, ref, push, set, get, remove } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
+		
+
+		
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, set, get, remove, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAFV8kimd0f2dLw3yyQNj3fIyY4_5zCQB0",
             authDomain: "poetry-blog-ff72f.firebaseapp.com",
@@ -756,855 +2436,1278 @@
             appId: "1:331598419628:web:d1093b30ab867d3d40b109"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        // Initialize Firebase
+        let app, database;
+        let isFirebaseConfigured = false;
 
-        let poems = [];
-        let selectedPoems = new Set();
-        let existingPosts = [];
-
-        // Завантажуємо існуючі пости
-        async function loadExistingPosts() {
-            try {
-                const postsRef = ref(db, 'posts');
-                const snapshot = await get(postsRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    existingPosts = Object.entries(data).map(([id, post]) => ({
-                        id,
-                        ...post
-                    }));
-                    console.log(`✓ Завантажено ${existingPosts.length} існуючих постів`);
-                }
-            } catch (error) {
-                console.error('Помилка завантаження постів:', error);
+        try {
+            if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+                app = initializeApp(firebaseConfig);
+                database = getDatabase(app);
+                isFirebaseConfigured = true;
+            } else {
+                console.warn('Firebase not configured. Using localStorage as fallback.');
+                document.getElementById('firebaseNotice').style.display = 'block';
             }
+        } catch (error) {
+            console.error('Firebase initialization error:', error);
+            isFirebaseConfigured = false;
         }
 
-        loadExistingPosts();
+        // Global variables
+        window.posts = [];
+        window.currentFilter = 'all';
+        window.currentAdminFilter = 'all';
+        window.currentHashtagFilter = null;
+        window.searchQuery = '';
+        window.adminSearchQuery = '';
+        window.currentPage = 1;
+        window.postsPerPage = 30;
+        window.isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+        const ADMIN_PASSWORD = 'mypoetry2026';
 
-        // Перевірка дублікатів - покращена версія
-        function isDuplicate(title, content) {
-            return existingPosts.some(post => {
-                // Рівень 1: Точна відповідність заголовка
-                const titleMatch = post.title && 
-                    post.title.trim().toLowerCase() === title.trim().toLowerCase();
-                
-                // Рівень 2: Перші 100 символів контенту
-                const contentStart = content.trim().substring(0, 100).toLowerCase();
-                const existingStart = post.content ? 
-                    post.content.trim().substring(0, 100).toLowerCase() : '';
-                const contentStartMatch = contentStart && existingStart && 
-                    contentStart === existingStart;
-                
-                // Рівень 3: Перші 200 символів контенту (для довших текстів)
-                const contentLong = content.trim().substring(0, 200).toLowerCase();
-                const existingLong = post.content ? 
-                    post.content.trim().substring(0, 200).toLowerCase() : '';
-                const contentLongMatch = contentLong.length > 100 && 
-                    existingLong.length > 100 && 
-                    contentLong === existingLong;
-                
-                // Рівень 4: Схожість тексту (приблизно 80%+)
-                const similarity = calculateSimilarity(
-                    content.trim().substring(0, 300), 
-                    post.content ? post.content.trim().substring(0, 300) : ''
-                );
-                const similarityMatch = similarity > 0.8;
-                
-                // Рівень 5: Перший рядок вірша (часто унікальний)
-                const firstLine = content.trim().split('\n')[0].toLowerCase();
-                const existingFirstLine = post.content ? 
-                    post.content.trim().split('\n')[0].toLowerCase() : '';
-                const firstLineMatch = firstLine.length > 10 && 
-                    existingFirstLine.length > 10 &&
-                    firstLine === existingFirstLine;
-                
-                return titleMatch || contentStartMatch || contentLongMatch || 
-                       similarityMatch || firstLineMatch;
-            });
-        }
-
-        // Функція розрахунку схожості тексту (алгоритм Левенштейна спрощений)
-        function calculateSimilarity(str1, str2) {
-            if (!str1 || !str2) return 0;
-            if (str1 === str2) return 1;
-            
-            // Нормалізуємо тексти
-            str1 = str1.toLowerCase().replace(/\s+/g, ' ').trim();
-            str2 = str2.toLowerCase().replace(/\s+/g, ' ').trim();
-            
-            if (str1 === str2) return 1;
-            
-            // Порівнюємо слова
-            const words1 = str1.split(' ');
-            const words2 = str2.split(' ');
-            
-            let matchingWords = 0;
-            words1.forEach(word => {
-                if (words2.includes(word)) matchingWords++;
-            });
-            
-            const similarity = (matchingWords * 2) / (words1.length + words2.length);
-            return similarity;
-        }
-
-        // Детальна інформація про дублікат
-        function getDuplicateInfo(title, content) {
-            const duplicates = existingPosts.filter(post => {
-                const titleMatch = post.title && 
-                    post.title.trim().toLowerCase() === title.trim().toLowerCase();
-                
-                const contentStart = content.trim().substring(0, 100).toLowerCase();
-                const existingStart = post.content ? 
-                    post.content.trim().substring(0, 100).toLowerCase() : '';
-                const contentMatch = contentStart === existingStart;
-                
-                const similarity = calculateSimilarity(
-                    content.trim().substring(0, 300), 
-                    post.content ? post.content.trim().substring(0, 300) : ''
-                );
-                
-                return titleMatch || contentMatch || similarity > 0.8;
-            });
-            
-            return duplicates;
-        }
-
-        // Drag & Drop
-        const uploadSection = document.getElementById('uploadSection');
-        uploadSection.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadSection.classList.add('dragover');
-        });
-        uploadSection.addEventListener('dragleave', () => {
-            uploadSection.classList.remove('dragover');
-        });
-        uploadSection.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadSection.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) processFile(file);
-        });
-
-        window.handleFile = function(event) {
-            const file = event.target.files[0];
-            if (file) processFile(file);
-        };
-
-        function processFile(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
+        // Database functions
+        async function savePosts(posts) {
+            if (isFirebaseConfigured) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                    parsePoems(rows);
+                    await set(ref(database, 'posts'), posts);
                 } catch (error) {
-                    showMessage('Помилка читання файлу: ' + error.message, 'error');
+                    console.error('Error saving to Firebase:', error);
+                    alert('Помилка збереження. Перевірте налаштування Firebase.');
                 }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function parsePoems(rows) {
-            poems = [];
-            let currentPoem = [];
-            let currentTitle = '';
-            let poemNumber = 0;
-
-            for (let i = 0; i < rows.length; i++) {
-                const row = rows[i];
-                let line = '';
-                
-                for (let cell of row) {
-                    if (cell !== null && cell !== undefined && String(cell).trim()) {
-                        line += String(cell).trim() + ' ';
-                    }
-                }
-                line = line.trim();
-
-                if (!line) {
-                    if (currentPoem.length > 3) {
-                        const content = currentPoem.join('\n').trim();
-                        const title = currentTitle || currentPoem[0].substring(0, 50);
-                        
-                        const cleanTitle = cleanOCR(title);
-                        const cleanContent = cleanOCR(content);
-                        
-                        poems.push({
-                            id: `poem_${poemNumber++}`,
-                            title: cleanTitle,
-                            content: cleanContent,
-                            category: 'poetry',
-                            original: content,
-                            warnings: detectOCRIssues(content),
-                            hashtags: ['лірика', 'філософія'],
-                            isDuplicate: isDuplicate(cleanTitle, cleanContent)
-                        });
-                        
-                        currentPoem = [];
-                        currentTitle = '';
-                    } else {
-                        currentPoem = [];
-                        currentTitle = '';
-                    }
-                } else {
-                    if (currentPoem.length === 0 && line.length < 60 && !line.includes(' ')) {
-                        currentTitle = line;
-                    }
-                    currentPoem.push(line);
-                }
-            }
-
-            if (currentPoem.length > 3) {
-                const content = currentPoem.join('\n').trim();
-                const title = currentTitle || currentPoem[0].substring(0, 50);
-                const cleanTitle = cleanOCR(title);
-                const cleanContent = cleanOCR(content);
-                
-                poems.push({
-                    id: `poem_${poemNumber++}`,
-                    title: cleanTitle,
-                    content: cleanContent,
-                    category: 'poetry',
-                    original: content,
-                    warnings: detectOCRIssues(content),
-                    hashtags: ['поезія', 'вірші'],
-                    isDuplicate: isDuplicate(cleanTitle, cleanContent)
-                });
-            }
-
-            const duplicates = poems.filter(p => p.isDuplicate).length;
-            showMessage(`Знайдено ${poems.length} віршів (${duplicates} можливих дублікатів). Перевірте текст та виправте помилки OCR.`, 'info');
-            
-            document.getElementById('uploadSection').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('totalCount').textContent = poems.length;
-            document.getElementById('duplicateCount').textContent = duplicates;
-            document.getElementById('warningCount').textContent = poems.filter(p => p.warnings.length > 0).length;
-            
-            renderPoems();
-        }
-
-        function cleanOCR(text) {
-            return text
-                .replace(/ҐПаЕ/g, 'Час')
-                .replace(/нрай/g, 'край')
-                .replace(/тг зілля/g, 'та зілля')
-                .replace(/нов з чаю/g, 'мов з чаю')
-                .replace(/е /g, 'є ')
-                .replace(/ е,/g, ' є,')
-                .replace(/н '1'/g, "!'")
-                .replace(/■/g, '-')
-                .replace(/Іірасіііьнля/g, 'Красовський')
-                .replace(/Нрасйііьння/g, 'Красовський')
-                .replace(/коті е,/g, 'котів,')
-                .replace(/леть/g, 'лет')
-                .replace(/соб які/g, 'собак')
-                .replace(/г\./g, 'р.');
-        }
-
-        function detectOCRIssues(text) {
-            const warnings = [];
-            if (text.match(/[ҐІ]/)) warnings.push('Можливі неправильні літери');
-            if (text.match(/[■□]/)) warnings.push('Спецсимволи');
-            if (text.match(/\sе\s/)) warnings.push('є → е');
-            if (text.match(/н[рп]а[йи]/)) warnings.push('нрай → край');
-            return warnings;
-        }
-
-        function renderPoems(filter = '') {
-            const grid = document.getElementById('poemGrid');
-            grid.innerHTML = '';
-            
-            const filtered = filter ? 
-                poems.filter(p => 
-                    p.title.toLowerCase().includes(filter.toLowerCase()) ||
-                    p.content.toLowerCase().includes(filter.toLowerCase())
-                ) : poems;
-            
-            filtered.forEach((poem, index) => {
-                const item = document.createElement('div');
-                item.className = `poem-item ${selectedPoems.has(poem.id) ? 'selected' : ''} ${poem.isDuplicate ? 'duplicate' : ''}`;
-                
-                const warningsHtml = poem.warnings.length > 0 ? 
-                    `<div class="ocr-warnings">⚠️ ${poem.warnings.join(', ')}</div>` : '';
-                
-                const duplicateBadge = poem.isDuplicate ? 
-                    '<div class="duplicate-badge">⚠️ Можливий дублікат</div>' : '';
-                
-                item.innerHTML = `
-                    ${duplicateBadge}
-                    <div class="poem-header">
-                        <input type="checkbox" class="poem-checkbox" 
-                               ${selectedPoems.has(poem.id) ? 'checked' : ''}
-                               onchange="togglePoem('${poem.id}')">
-                        <span class="poem-number">#${index + 1}</span>
-                        <input type="text" class="poem-title-input" 
-                               value="${poem.title}" 
-                               onchange="updateTitle('${poem.id}', this.value)"
-                               placeholder="Заголовок...">
-                    </div>
-                    <textarea class="poem-content" 
-                              onchange="updateContent('${poem.id}', this.value)">${poem.content}</textarea>
-                    ${warningsHtml}
-                    <button class="delete-btn" onclick="deletePoem('${poem.id}')">🗑️ Видалити</button>
-                `;
-                
-                grid.appendChild(item);
-            });
-        }
-
-        window.updateTitle = function(id, newTitle) {
-            const poem = poems.find(p => p.id === id);
-            if (poem) poem.title = newTitle;
-        };
-
-        window.updateContent = function(id, newContent) {
-            const poem = poems.find(p => p.id === id);
-            if (poem) poem.content = newContent;
-        };
-
-        window.togglePoem = function(id) {
-            if (selectedPoems.has(id)) {
-                selectedPoems.delete(id);
             } else {
-                selectedPoems.add(id);
+                localStorage.setItem('posts', JSON.stringify(posts));
             }
-            document.getElementById('selectedCount').textContent = selectedPoems.size;
-            renderPoems(document.getElementById('searchBox').value);
-        };
-
-        window.selectAll = function() {
-            poems.forEach(p => selectedPoems.add(p.id));
-            document.getElementById('selectedCount').textContent = selectedPoems.size;
-            renderPoems(document.getElementById('searchBox').value);
-        };
-
-        window.selectNew = function() {
-            selectedPoems.clear();
-            poems.filter(p => !p.isDuplicate).forEach(p => selectedPoems.add(p.id));
-            document.getElementById('selectedCount').textContent = selectedPoems.size;
-            renderPoems(document.getElementById('searchBox').value);
-        };
-
-        window.deselectAll = function() {
-            selectedPoems.clear();
-            document.getElementById('selectedCount').textContent = 0;
-            renderPoems(document.getElementById('searchBox').value);
-        };
-
-        window.deletePoem = function(id) {
-            if (confirm('Видалити цей вірш зі списку?')) {
-                poems = poems.filter(p => p.id !== id);
-                selectedPoems.delete(id);
-                document.getElementById('totalCount').textContent = poems.length;
-                document.getElementById('selectedCount').textContent = selectedPoems.size;
-                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
-                renderPoems(document.getElementById('searchBox').value);
-            }
-        };
-
-        // Популярні хештеги
-        const popularHashtags = [
-            'лірика', 'філософія', 'поезія', 'вірші', 'українськоюмовою', 'думки', 
-            'роздуми', 'життя', 'любов',
-            'природа', 'осінь', 'весна', 'зима', 'літо',
-            'душа', 'серце', 'почуття', 'емоції',
-            'творчість', 'література', 'поет'
-        ];
-
-        window.importSelected = function() {
-            if (selectedPoems.size === 0) {
-                showMessage('Оберіть хоча б один вірш', 'error');
-                return;
-            }
-            showEditModal();
-        };
-
-        function showEditModal() {
-            const modal = document.getElementById('editModal');
-            const modalBody = document.getElementById('editModalBody');
-            modalBody.innerHTML = '';
-
-            const selectedPoemsList = poems.filter(p => selectedPoems.has(p.id));
-            
-            selectedPoemsList.forEach((poem, index) => {
-                const editDiv = document.createElement('div');
-                editDiv.className = 'edit-poem';
-                editDiv.innerHTML = `
-                    <span class="edit-poem-number">Вірш #${index + 1}</span>
-                    ${poem.isDuplicate ? '<div style="background: #fff3cd; padding: 10px; border-radius: 8px; margin: 10px 0;"><strong>⚠️ Увага:</strong> Цей вірш можливо вже опублікований!</div>' : ''}
-                    
-                    <label class="edit-label">Категорія:</label>
-                    <select class="edit-input edit-select" id="category_${poem.id}">
-                        <option value="poetry">📖 Поезія</option>
-                        <option value="thought">💭 Думка</option>
-                    </select>
-                    
-                    <label class="edit-label">Заголовок:</label>
-                    <input type="text" class="edit-input" id="title_${poem.id}" 
-                           value="${poem.title}" placeholder="Введіть заголовок...">
-                    
-                    <label class="edit-label">Текст:</label>
-                    <button class="spell-check-btn" onclick="checkSpelling('${poem.id}')">
-                        ✓ Перевірити орфографію
-                    </button>
-                    <div class="spell-check-issues" id="spell_${poem.id}"></div>
-                    <textarea class="edit-textarea" id="content_${poem.id}">${poem.content}</textarea>
-                    
-                    <label class="edit-label">Хештеги:</label>
-                    <input type="text" class="edit-input" id="hashtags_${poem.id}" 
-                           value="${poem.hashtags.join(', ')}" 
-                           placeholder="Введіть хештеги через кому...">
-                    <div class="hashtag-suggestions" id="hashtag_suggestions_${poem.id}">
-                        ${popularHashtags.map(tag => 
-                            `<span class="hashtag-tag ${poem.hashtags.includes(tag) ? 'selected' : ''}" 
-                                   onclick="toggleHashtag('${poem.id}', '${tag}')">#${tag}</span>`
-                        ).join('')}
-                    </div>
-                `;
-                modalBody.appendChild(editDiv);
-            });
-
-            modal.classList.add('active');
         }
 
-        window.closeEditModal = function() {
-            document.getElementById('editModal').classList.remove('active');
-        };
-
-        window.toggleHashtag = function(poemId, tag) {
-            const input = document.getElementById(`hashtags_${poemId}`);
-            const currentTags = input.value.split(',').map(t => t.trim()).filter(t => t);
-            
-            if (currentTags.includes(tag)) {
-                const newTags = currentTags.filter(t => t !== tag);
-                input.value = newTags.join(', ');
-            } else {
-                currentTags.push(tag);
-                input.value = currentTags.join(', ');
-            }
-
-            const tagElement = event.target;
-            tagElement.classList.toggle('selected');
-        };
-
-        window.checkSpelling = function(poemId) {
-            const content = document.getElementById(`content_${poemId}`).value;
-            const issuesDiv = document.getElementById(`spell_${poemId}`);
-            
-            const commonIssues = [
-                { wrong: 'е ', correct: 'є ', regex: /\sе\s/g },
-                { wrong: ' е,', correct: ' є,', regex: /\sе,/g },
-                { wrong: ' е.', correct: ' є.', regex: /\sе\./g },
-                { wrong: 'нрай', correct: 'край', regex: /нрай/g },
-                { wrong: 'ҐПаЕ', correct: 'Час', regex: /ҐПаЕ/g },
-                { wrong: 'коті е', correct: 'котів', regex: /коті\sе/g },
-                { wrong: 'леть', correct: 'лет', regex: /леть/g },
-                { wrong: 'тг ', correct: 'та ', regex: /тг\s/g },
-                { wrong: '■', correct: '-', regex: /■/g },
-                { wrong: 'нов ', correct: 'мов ', regex: /нов\s/g },
-                { wrong: 'II ', correct: '', regex: /^II\s/gm },
-            ];
-
-            const foundIssues = [];
-            commonIssues.forEach(issue => {
-                if (content.match(issue.regex)) {
-                    foundIssues.push(issue);
+        async function loadPosts() {
+            if (isFirebaseConfigured) {
+                try {
+                    const snapshot = await get(ref(database, 'posts'));
+                    if (snapshot.exists()) {
+                        return snapshot.val();
+                    }
+                    return [];
+                } catch (error) {
+                    console.error('Error loading from Firebase:', error);
+                    return [];
                 }
-            });
-
-            if (foundIssues.length > 0) {
-                issuesDiv.innerHTML = `
-                    <strong>⚠️ Знайдено ${foundIssues.length} помилок:</strong>
-                    ${foundIssues.map((issue, idx) => `
-                        <div class="spell-issue">
-                            <span class="spell-issue-word">"${issue.wrong.trim()}"</span> →
-                            <div class="spell-suggestions">
-                                <span class="spell-suggestion" 
-                                      onclick="applyFix('${poemId}', ${idx})">
-                                    ${issue.correct.trim() || '(видалити)'}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-                issuesDiv.classList.add('active');
-                
-                // Зберігаємо issues для використання в applyFix
-                window[`spellIssues_${poemId}`] = foundIssues;
             } else {
-                issuesDiv.innerHTML = '<strong>✅ Помилок не знайдено!</strong>';
-                issuesDiv.classList.add('active');
-                setTimeout(() => {
-                    issuesDiv.classList.remove('active');
-                }, 3000);
+                return JSON.parse(localStorage.getItem('posts') || '[]');
             }
-        };
+        }
 
-        window.applyFix = function(poemId, issueIndex) {
-            const textarea = document.getElementById(`content_${poemId}`);
-            const issues = window[`spellIssues_${poemId}`];
-            if (issues && issues[issueIndex]) {
-                const issue = issues[issueIndex];
-                textarea.value = textarea.value.replace(issue.regex, issue.correct);
-                checkSpelling(poemId);
-            }
-        };
-
-        window.confirmImport = async function() {
-            console.log('🔄 Початок публікації...');
-            
-            const selectedPoemsList = poems.filter(p => selectedPoems.has(p.id));
-            console.log(`📝 Обрано віршів: ${selectedPoemsList.length}`);
-            
-            const modalFooter = document.querySelector('#editModal .modal-footer');
-            console.log('Modal footer:', modalFooter);
-            
-            const importBtn = modalFooter.querySelector('.btn-success');
-            console.log('Import button:', importBtn);
-            
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            
-            if (!importBtn) {
-                console.error('❌ Не знайдено кнопку публікації!');
-                alert('Помилка: не знайдено кнопку публікації');
-                return;
-            }
-            
-            importBtn.disabled = true;
-            importBtn.textContent = '⏳ Публікація...';
-            progressBar.style.display = 'block';
-
-            let imported = 0;
-            let errors = 0;
-
-            console.log('🚀 Починаємо імпорт...');
-            
-            try {
-                // Завантажуємо існуючий масив постів
-                console.log('📥 Завантаження існуючих постів...');
-                const postsRef = ref(db, 'posts');
-                const snapshot = await get(postsRef);
-                let postsArray = [];
-                
+        // Real-time updates
+        if (isFirebaseConfigured) {
+            onValue(ref(database, 'posts'), (snapshot) => {
                 if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    // Якщо це масив - використовуємо його
-                    if (Array.isArray(data)) {
-                        postsArray = data;
-                        console.log(`✓ Завантажено ${postsArray.length} існуючих постів (масив)`);
-                    } 
-                    // Якщо це об'єкт - конвертуємо в масив
-                    else if (typeof data === 'object') {
-                        postsArray = Object.values(data).filter(p => p && p.id);
-                        console.log(`✓ Конвертовано ${postsArray.length} постів з об'єкта в масив`);
+                    window.posts = snapshot.val();
+                    renderPublicPosts();
+                    if (window.isAdminLoggedIn) {
+                        renderAdminPosts();
                     }
-                } else {
-                    console.log('⚠️ База порожня, створюємо новий масив');
                 }
-                
-                // Додаємо нові пости
-                for (const poem of selectedPoemsList) {
-                    try {
-                        console.log(`\n📄 Обробка вірша: ${poem.id}`);
-                        
-                        const category = document.getElementById(`category_${poem.id}`).value;
-                        const title = document.getElementById(`title_${poem.id}`).value.trim();
-                        const content = document.getElementById(`content_${poem.id}`).value.trim();
-                        const hashtagsInput = document.getElementById(`hashtags_${poem.id}`).value;
-                        const hashtags = hashtagsInput
-                            .split(',')
-                            .map(tag => tag.trim())
-                            .map(tag => tag.startsWith('#') ? tag.substring(1) : tag) // Прибираємо # на початку
-                            .filter(tag => tag.length > 0);
+            });
+        }
 
-                        console.log('  Категорія:', category);
-                        console.log('  Заголовок:', title);
-                        console.log('  Довжина тексту:', content.length);
-                        console.log('  Хештеги:', hashtags);
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            window.posts = await loadPosts();
+            renderPublicPosts();
+            initializePublicFilters();
+            initFontSizeSlider();
+        });
 
-                        if (!title || !content) {
-                            console.error('  ❌ Пропущено - немає заголовка або тексту');
-                            errors++;
-                            continue;
-                        }
-
-                        const timestamp = Date.now();
-                        const newPost = {
-                            id: String(timestamp),
-                            type: category,
-                            title,
-                            content,
-                            hashtags,
-                            date: new Date().toISOString()
-                        };
-                        
-                        console.log('  Створений пост:', newPost);
-                        
-                        // Додаємо на початок масиву (найновіші спочатку)
-                        postsArray.unshift(newPost);
-                        
-                        imported++;
-                        console.log(`  ✅ Додано до масиву: ${title}`);
-                        
-                        // Невелика затримка для унікальності timestamp
-                        await new Promise(resolve => setTimeout(resolve, 10));
-                        
-                    } catch (error) {
-                        console.error('  ❌ Помилка обробки:', error);
-                        errors++;
-                    }
-
-                    const progress = Math.round((imported + errors) / selectedPoemsList.length * 100);
-                    progressFill.style.width = progress + '%';
-                    progressFill.textContent = progress + '%';
+        // Font Size Control
+        // Font Size Slider
+        function initFontSizeSlider() {
+            const slider = document.getElementById('fontSizeSlider');
+            const valueDisplay = document.getElementById('fontSizeValue');
+            
+            if (!slider) return;
+            
+            // Load saved size (старі значення конвертуємо в нові)
+            let savedSize = localStorage.getItem('fontSize');
+            if (savedSize) {
+                const oldValue = parseInt(savedSize);
+                // Конвертуємо старі значення (85-200) в нові (0-100)
+                if (oldValue > 100) {
+                    // Старий формат, конвертуємо
+                    savedSize = Math.round(((oldValue - 85) / (200 - 85)) * 100);
                 }
-
-                // Зберігаємо весь масив назад
-                if (imported > 0) {
-                    console.log(`\n💾 Збереження ${postsArray.length} постів в Firebase...`);
-                    await set(postsRef, postsArray);
-                    console.log('✅ Збережено успішно!');
-                }
-
-            } catch (error) {
-                console.error('❌ Критична помилка:', error);
-                errors = selectedPoemsList.length;
-            }
-
-            console.log(`\n📊 Результати: імпортовано ${imported}, помилок ${errors}`);
-
-            progressBar.style.display = 'none';
-            importBtn.disabled = false;
-            importBtn.textContent = '✨ Опублікувати всі';
-            closeEditModal();
-
-            if (errors === 0) {
-                showMessage(`✅ Успішно опубліковано ${imported} ${getPluralForm(imported)}!`, 'success');
-                console.log('🔄 Оновлення списку постів...');
-                await loadExistingPosts();
-                selectedPoems.clear();
-                document.getElementById('selectedCount').textContent = 0;
-                poems.forEach(p => {
-                    p.isDuplicate = isDuplicate(p.title, p.content);
-                });
-                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
-                renderPoems(document.getElementById('searchBox').value);
-                console.log('✅ Завершено успішно!');
             } else {
-                showMessage(`⚠️ Опубліковано ${imported}, помилок: ${errors}. Дивіться консоль.`, 'error');
-                console.error('⚠️ Завершено з помилками');
+                savedSize = '50'; // Базовий розмір
             }
-        };
+            
+            slider.value = savedSize;
+            updateFontSize(savedSize);
+            
+            // Handle slider changes
+            slider.addEventListener('input', (e) => {
+                updateFontSize(e.target.value);
+            });
+        }
 
-        // Керування постами
-        window.showManageModal = async function() {
-            const modal = document.getElementById('manageModal');
-            const modalBody = document.getElementById('manageModalBody');
-            modal.classList.add('active');
+        function updateFontSize(size) {
+            const sizeNum = parseInt(size);
             
-            modalBody.innerHTML = '<div class="loading"><div class="spinner"></div><p>Завантаження...</p></div>';
+            // Конвертуємо 0-100 в множник від 0.5 до 2.5
+            // 0 = 0.5x, 50 = 1.0x (базовий), 100 = 2.5x
+            const multiplier = 0.5 + (sizeNum / 100) * 2.0;
             
-            await loadExistingPosts();
+            // Update display
+            const valueDisplay = document.getElementById('fontSizeValue');
+            if (valueDisplay) {
+                valueDisplay.textContent = sizeNum + '%';
+            }
             
-            if (existingPosts.length === 0) {
-                modalBody.innerHTML = '<p style="text-align: center; padding: 40px;">Постів ще немає</p>';
+            // Save preference
+            localStorage.setItem('fontSize', size);
+            
+            // Apply to all post contents (базовий розмір 1.15rem)
+            document.querySelectorAll('.post-content').forEach(content => {
+                content.style.fontSize = (1.15 * multiplier) + 'rem';
+            });
+        }
+
+        // Favorites functionality
+        function getFavorites() {
+            const favorites = localStorage.getItem('favorites');
+            return favorites ? JSON.parse(favorites) : [];
+        }
+
+        function saveFavorites(favorites) {
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
+        function isFavorite(postId) {
+            const favorites = getFavorites();
+            return favorites.includes(postId);
+        }
+
+        window.toggleFavorite = function(postId) {
+            let favorites = getFavorites();
+            const index = favorites.indexOf(postId);
+            
+            if (index > -1) {
+                // Видалити з обраного
+                favorites.splice(index, 1);
+            } else {
+                // Додати в обране
+                favorites.push(postId);
+            }
+            
+            saveFavorites(favorites);
+            
+            // Оновити відображення
+            renderPublicPosts();
+        }
+
+        // Login
+        window.showLogin = function() {
+            document.getElementById('loginModal').classList.add('active');
+            document.getElementById('adminPassword').focus();
+        }
+
+        window.closeLogin = function() {
+            document.getElementById('loginModal').classList.remove('active');
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                window.isAdminLoggedIn = true;
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                closeLogin();
+                showAdminPanel();
+            } else {
+                document.getElementById('loginError').classList.add('show');
+                document.getElementById('adminPassword').value = '';
+            }
+        });
+
+        document.getElementById('loginModal').addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') {
+                closeLogin();
+            }
+        });
+
+        // Admin Panel
+        window.showAdminPanel = async function() {
+            document.getElementById('publicSite').style.display = 'none';
+            document.getElementById('adminPanel').classList.add('active');
+            window.posts = await loadPosts();
+            showAllPosts();
+        }
+
+        window.viewSite = function() {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('publicSite').style.display = 'block';
+            renderPublicPosts();
+        }
+
+        window.logout = function() {
+            window.isAdminLoggedIn = false;
+            sessionStorage.removeItem('adminLoggedIn');
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('publicSite').style.display = 'block';
+        }
+
+        // Admin Views
+        window.showAllPosts = function(e) {
+            if (e) e.preventDefault();
+            document.getElementById('allPostsView').style.display = 'block';
+            document.getElementById('editorView').style.display = 'none';
+            document.getElementById('themeSettingsView').style.display = 'none';
+            
+            document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
+            if (e) e.target.closest('a').classList.add('active');
+            
+            renderAdminPosts();
+            initializeAdminTabs();
+        }
+
+        window.showNewPost = function(e, skipReset) {
+            if (e) e.preventDefault();
+            document.getElementById('allPostsView').style.display = 'none';
+            document.getElementById('editorView').style.display = 'block';
+            document.getElementById('themeSettingsView').style.display = 'none';
+            
+            document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
+            if (e && e.target.closest('a')) e.target.closest('a').classList.add('active');
+            
+            if (!skipReset) {
+                resetEditor();
+                document.getElementById('editorTitle').textContent = 'Створити публікацію';
+            }
+        }
+
+        window.showThemeSettings = function(e) {
+            if (e) e.preventDefault();
+            document.getElementById('allPostsView').style.display = 'none';
+            document.getElementById('editorView').style.display = 'none';
+            document.getElementById('themeSettingsView').style.display = 'block';
+            
+            document.querySelectorAll('.admin-menu a').forEach(a => a.classList.remove('active'));
+            if (e) e.target.closest('a').classList.add('active');
+            
+            // Відобразити активну тему
+            updateThemeCards();
+        }
+
+        function updateThemeCards() {
+            // Отримуємо поточну тему (з Firebase якщо доступна)
+            let currentTheme = 'default';
+            if (window.siteSettings && window.siteSettings.theme) {
+                currentTheme = window.siteSettings.theme;
+            }
+            
+            document.querySelectorAll('.theme-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.dataset.theme === currentTheme) {
+                    card.classList.add('active');
+                }
+            });
+        }
+
+        window.applyTheme = async function(themeName) {
+            // Застосовуємо тему локально
+            if (themeName === 'default') {
+                document.documentElement.removeAttribute('data-theme');
+            } else {
+                document.documentElement.setAttribute('data-theme', themeName);
+            }
+            
+            // Зберігаємо в Firebase для всіх користувачів
+            if (isFirebaseConfigured) {
+                try {
+                    await set(ref(database, 'settings/theme'), themeName);
+                    console.log(`✓ Тема збережена в Firebase: ${themeName}`);
+                } catch (error) {
+                    console.error('Помилка збереження теми:', error);
+                    alert('Помилка збереження теми. Перевірте підключення до Firebase.');
+                }
+            }
+            
+            // Оновлюємо відображення
+            if (!window.siteSettings) window.siteSettings = {};
+            window.siteSettings.theme = themeName;
+            updateThemeCards();
+        }
+
+        // Завантажуємо тему з Firebase
+        async function loadGlobalTheme() {
+            if (isFirebaseConfigured) {
+                try {
+                    const themeRef = ref(database, 'settings/theme');
+                    const snapshot = await get(themeRef);
+                    if (snapshot.exists()) {
+                        const themeName = snapshot.val();
+                        if (themeName && themeName !== 'default') {
+                            document.documentElement.setAttribute('data-theme', themeName);
+                        }
+                        if (!window.siteSettings) window.siteSettings = {};
+                        window.siteSettings.theme = themeName;
+                        console.log(`✓ Завантажено глобальну тему: ${themeName}`);
+                    }
+                } catch (error) {
+                    console.error('Помилка завантаження теми:', error);
+                }
+            }
+        }
+
+        // Слухаємо зміни теми в реальному часі
+        if (isFirebaseConfigured) {
+            onValue(ref(database, 'settings/theme'), (snapshot) => {
+                if (snapshot.exists()) {
+                    const themeName = snapshot.val();
+                    if (themeName === 'default') {
+                        document.documentElement.removeAttribute('data-theme');
+                    } else {
+                        document.documentElement.setAttribute('data-theme', themeName);
+                    }
+                    if (!window.siteSettings) window.siteSettings = {};
+                    window.siteSettings.theme = themeName;
+                    console.log(`✓ Тема оновлена в реальному часі: ${themeName}`);
+                }
+            });
+        }
+
+        // Завантажуємо тему при старті
+        loadGlobalTheme();
+
+        function resetEditor() {
+            document.getElementById('editorForm').reset();
+            document.getElementById('editPostId').value = '';
+        }
+
+        window.cancelEditor = function() {
+            showAllPosts();
+        }
+
+        // Admin Tabs
+        function initializeAdminTabs() {
+            const tabs = document.querySelectorAll('.admin-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    window.currentAdminFilter = tab.dataset.filter;
+                    renderAdminPosts();
+                });
+            });
+        }
+
+        // Render Admin Posts
+        function renderAdminPosts() {
+            const container = document.getElementById('postsTableContainer');
+            const filteredPosts = window.currentAdminFilter === 'all' 
+                ? window.posts 
+                : window.posts.filter(post => post.type === window.currentAdminFilter);
+
+            // Filter by admin search query
+            if (window.adminSearchQuery) {
+                const query = window.adminSearchQuery.toLowerCase();
+                filteredPosts = filteredPosts.filter(post => {
+                    const titleMatch = post.title.toLowerCase().includes(query);
+                    const contentMatch = post.content.toLowerCase().includes(query);
+                    const hashtagMatch = post.hashtags && post.hashtags.some(tag => 
+                        tag.toLowerCase().includes(query)
+                    );
+                    return titleMatch || contentMatch || hashtagMatch;
+                });
+            }
+
+            // Update counts
+            document.getElementById('countAll').textContent = window.posts.length;
+            document.getElementById('countPoetry').textContent = window.posts.filter(p => p.type === 'poetry').length;
+            document.getElementById('countThought').textContent = window.posts.filter(p => p.type === 'thought').length;
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `
+                    <div class="admin-empty-state">
+                        <h3>Публікацій не знайдено</h3>
+                        <p>Натисніть кнопку "Додати нову" щоб створити першу публікацію</p>
+                        <button class="btn-add-new" onclick="showNewPost(event)">➕ Додати нову</button>
+                    </div>
+                `;
                 return;
             }
 
-            modalBody.innerHTML = `
-                <div style="margin-bottom: 20px;">
-                    <input type="text" id="manageSearch" class="edit-input" placeholder="🔍 Пошук по заголовку..." 
-                           onkeyup="filterManagePosts(this.value)">
+            container.innerHTML = `
+                <div class="posts-table-container">
+                    <table class="posts-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%">Заголовок</th>
+                                <th style="width: 20%">Тип</th>
+                                <th style="width: 30%">Дата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredPosts
+                                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                                .map(post => `
+                                    <tr>
+                                        <td>
+                                            <div class="post-title-cell" onclick="editPostAdmin('${post.id}')">
+                                                ${escapeHtml(post.title)}
+                                            </div>
+                                            ${post.hashtags && post.hashtags.length > 0 ? `
+                                                <div class="post-hashtags-admin">
+                                                    ${post.hashtags.map(tag => `
+                                                        <span class="hashtag-admin" onclick="filterAdminByHashtag(\`${tag}\`)">#${escapeHtml(tag)}</span>
+                                                    `).join('')}
+                                                </div>
+                                            ` : ''}
+                                            <div class="post-row-actions">
+                                                <a onclick="editPostAdmin('${post.id}')">Редагувати</a>
+                                                <a class="delete" onclick="deletePostAdmin('${post.id}')">Видалити</a>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="post-type-badge ${post.type}">
+                                                ${post.type === 'poetry' ? 'Поезія' : 'Думка'}
+                                            </span>
+                                        </td>
+                                        <td>${formatDate(post.date)}</td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
                 </div>
-                <div id="managePostsList"></div>
             `;
-            
-            renderManagePosts();
-        };
-
-        function renderManagePosts(filter = '') {
-            const container = document.getElementById('managePostsList');
-            if (!container) return;
-            
-            const filtered = filter ? 
-                existingPosts.filter(p => p.title && p.title.toLowerCase().includes(filter.toLowerCase())) :
-                existingPosts;
-            
-            container.innerHTML = filtered.map(post => `
-                <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <strong>${post.title || 'Без заголовка'}</strong>
-                            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
-                                ${post.category === 'poetry' ? '📖' : '💭'} 
-                                ${post.date || ''} • 
-                                ${post.hashtags ? post.hashtags.slice(0, 3).join(' ') : ''}
-                            </div>
-                            <div style="color: #999; font-size: 0.85em; margin-top: 5px; max-height: 40px; overflow: hidden;">
-                                ${(post.content || '').substring(0, 100)}...
-                            </div>
-                        </div>
-                        <button class="btn btn-danger" style="padding: 8px 16px; margin-left: 15px;" 
-                                onclick="deletePost('${post.id}', '${(post.title || '').replace(/'/g, "\\'")}')">
-                            🗑️ Видалити
-                        </button>
-                    </div>
-                </div>
-            `).join('');
         }
 
-        window.filterManagePosts = function(value) {
-            renderManagePosts(value.toLowerCase());
+        // Editor Form
+        document.getElementById('editorForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('editPostId').value;
+            const type = document.getElementById('editorType').value;
+            const title = document.getElementById('editorTitleInput').value;
+            const content = document.getElementById('editorContent').value;
+            const hashtagsInput = document.getElementById('editorHashtags').value;
+            const hashtags = hashtagsInput
+                .split(',')
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0);
+
+            if (id) {
+                const index = window.posts.findIndex(p => p.id === id);
+                window.posts[index] = { ...window.posts[index], type, title, content, hashtags };
+            } else {
+                window.posts.unshift({
+                    id: Date.now().toString(),
+                    type,
+                    title,
+                    content,
+                    hashtags,
+                    date: new Date().toISOString()
+                });
+            }
+
+            await savePosts(window.posts);
+            showAllPosts();
+        });
+
+        window.editPostAdmin = function(id) {
+            const post = window.posts.find(p => p.id === id);
+            if (!post) return;
+
+            document.getElementById('editPostId').value = post.id;
+            document.getElementById('editorType').value = post.type;
+            document.getElementById('editorTitleInput').value = post.title;
+            document.getElementById('editorContent').value = post.content;
+            document.getElementById('editorHashtags').value = post.hashtags ? post.hashtags.join(', ') : '';
+            document.getElementById('editorTitle').textContent = 'Редагувати публікацію';
+
+            showNewPost(null, true);
+        }
+
+        window.deletePostAdmin = async function(id) {
+            if (!confirm('Ви впевнені, що хочете видалити цю публікацію?')) return;
+            window.posts = window.posts.filter(p => p.id !== id);
+            await savePosts(window.posts);
+            renderAdminPosts();
+            renderPublicPosts();
+        }
+
+        // PUBLIC SITE
+        function initializePublicFilters() {
+            const tabs = document.querySelectorAll('.filter-tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    window.currentFilter = tab.dataset.filter;
+                    window.currentPage = 1;
+                    renderPublicPosts();
+                });
+            });
+        }
+
+        function renderPublicPosts() {
+            const grid = document.getElementById('postsGrid');
+            let filteredPosts;
+            
+            if (window.currentFilter === 'favorites') {
+                // Показати тільки обрані публікації
+                const favorites = getFavorites();
+                filteredPosts = window.posts.filter(post => favorites.includes(post.id));
+            } else if (window.currentFilter === 'all') {
+                filteredPosts = window.posts;
+            } else {
+                filteredPosts = window.posts.filter(post => post.type === window.currentFilter);
+            }
+
+            // Filter by hashtag if selected
+            if (window.currentHashtagFilter) {
+                filteredPosts = filteredPosts.filter(post => 
+                    post.hashtags && post.hashtags.includes(window.currentHashtagFilter)
+                );
+            }
+
+            // Filter by search query
+            if (window.searchQuery) {
+                const query = window.searchQuery.toLowerCase();
+                const searchType = document.querySelector('input[name="searchType"]:checked')?.value || 'all';
+                
+                filteredPosts = filteredPosts.filter(post => {
+                    const titleMatch = post.title.toLowerCase().includes(query);
+                    const contentMatch = post.content.toLowerCase().includes(query);
+                    const hashtagMatch = post.hashtags && post.hashtags.some(tag => 
+                        tag.toLowerCase().includes(query)
+                    );
+                    
+                    if (searchType === 'title') {
+                        return titleMatch;
+                    } else if (searchType === 'content') {
+                        return contentMatch;
+                    } else {
+                        return titleMatch || contentMatch || hashtagMatch;
+                    }
+                });
+
+                // Show search results info
+                const searchInfo = document.getElementById('searchResultsInfo');
+                searchInfo.style.display = 'block';
+                const searchTypeText = searchType === 'title' ? 'по заголовках' : searchType === 'content' ? 'по тексту' : '';
+                searchInfo.innerHTML = `Знайдено <strong>${filteredPosts.length}</strong> ${getPluralForm(filteredPosts.length, 'публікація', 'публікації', 'публікацій')} ${searchTypeText} за запитом "<strong>${escapeHtml(window.searchQuery)}</strong>"`;
+            } else {
+                document.getElementById('searchResultsInfo').style.display = 'none';
+            }
+
+            if (filteredPosts.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>${window.searchQuery ? 'Нічого не знайдено' : 'Поки що немає публікацій'}</h3>
+                        <p>${window.searchQuery ? 'Спробуйте інший пошуковий запит' : 'Скоро тут з\'являться нові думки та поезія'}</p>
+                    </div>
+                `;
+                document.getElementById('tocContainer').style.display = 'none';
+                document.getElementById('hashtagFilterContainer').style.display = 'none';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            const sortedPosts = filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // Pagination
+            const totalPages = Math.ceil(sortedPosts.length / window.postsPerPage);
+            const startIndex = (window.currentPage - 1) * window.postsPerPage;
+            const endIndex = startIndex + window.postsPerPage;
+            const postsToShow = sortedPosts.slice(startIndex, endIndex);
+
+            grid.innerHTML = postsToShow
+                .map((post, index) => `
+                    <div class="post-card" id="post-${post.id}" data-post-id="${post.id}">
+                        <span class="post-type">${post.type === 'poetry' ? 'Поезія' : 'Думка'}</span>
+                        <h2>${escapeHtml(post.title)}</h2>
+                        <div class="post-date">${formatDate(post.date)}</div>
+                        <div class="post-content ${post.type === 'poetry' ? 'poetry' : ''}">${escapeHtml(post.content)}</div>
+                        ${post.hashtags && post.hashtags.length > 0 ? `
+                            <div class="post-hashtags">
+                                ${post.hashtags.map(tag => `
+                                    <span class="hashtag" onclick="filterByHashtag(\`${tag}\`)">#${escapeHtml(tag)}</span>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="post-actions">
+                            <button class="btn-to-toc" onclick="scrollToTOC()">
+                                📑 До змісту
+                            </button>
+                            <button class="btn-favorite ${isFavorite(post.id) ? 'active' : ''}" onclick="toggleFavorite('${post.id}')">
+                                ${isFavorite(post.id) ? '❤️ В обраному' : '🤍 В обране'}
+                            </button>
+                            <button class="btn-download-image" onclick="downloadPostAsImage('${post.id}')">
+                                📥 Зберегти як фото
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            
+            // Apply saved font size from slider
+            const savedSize = localStorage.getItem('fontSize') || '115';
+            updateFontSize(savedSize);
+
+            // Build Table of Contents
+            buildTOC(sortedPosts);
+
+            // Build Hashtag Filter
+            buildHashtagFilter();
+
+            // Render pagination
+            renderPagination(totalPages, sortedPosts.length);
+        }
+
+        function renderPagination(totalPages, totalPosts) {
+            const paginationEl = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                paginationEl.style.display = 'none';
+                return;
+            }
+
+            paginationEl.style.display = 'flex';
+            
+            let html = '';
+            
+            // Previous button
+            html += `<button class="pagination-btn" onclick="goToPage(${window.currentPage - 1})" ${window.currentPage === 1 ? 'disabled' : ''}>← Попередня</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (
+                    i === 1 || 
+                    i === totalPages || 
+                    (i >= window.currentPage - 1 && i <= window.currentPage + 1)
+                ) {
+                    html += `<button class="pagination-btn ${i === window.currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+                } else if (i === window.currentPage - 2 || i === window.currentPage + 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+            
+            // Next button
+            html += `<button class="pagination-btn" onclick="goToPage(${window.currentPage + 1})" ${window.currentPage === totalPages ? 'disabled' : ''}>Наступна →</button>`;
+            
+            // Info
+            const startIndex = (window.currentPage - 1) * window.postsPerPage + 1;
+            const endIndex = Math.min(window.currentPage * window.postsPerPage, totalPosts);
+            html += `<span class="pagination-info">${startIndex}-${endIndex} з ${totalPosts}</span>`;
+            
+            paginationEl.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            window.currentPage = page;
+            renderPublicPosts();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.goToPage = goToPage;
+
+
+        function buildTOC(posts) {
+            const tocList = document.getElementById('tocList');
+            const tocContainer = document.getElementById('tocContainer');
+
+            if (posts.length === 0) {
+                tocContainer.style.display = 'none';
+                return;
+            }
+
+            tocContainer.style.display = 'block';
+            
+            // Закрити зміст за замовчуванням
+            tocList.classList.add('collapsed');
+            document.getElementById('tocToggle').textContent = '▶';
+            
+            tocList.innerHTML = posts.map((post, index) => `
+                <li class="toc-item">
+                    <a href="#post-${post.id}" class="toc-link" data-post-index="${index}">
+                        <span class="toc-link-text">
+                            <span class="toc-number">${index + 1}.</span>
+                            <span class="toc-type ${post.type}">${post.type === 'poetry' ? 'П' : 'Д'}</span>
+                            ${escapeHtml(post.title)}
+                        </span>
+                        <span class="toc-category">${post.type === 'poetry' ? 'Поезія' : 'Думка'}</span>
+                    </a>
+                </li>
+            `).join('');
+
+            // Smooth scroll з підтримкою пагінації
+            document.querySelectorAll('.toc-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const postIndex = parseInt(link.getAttribute('data-post-index'));
+                    const targetId = link.getAttribute('href');
+                    
+                    // Розраховуємо на якій сторінці знаходиться пост
+                    const pageNumber = Math.floor(postIndex / window.postsPerPage) + 1;
+                    
+                    // Якщо пост на іншій сторінці - переходимо на неї
+                    if (pageNumber !== window.currentPage) {
+                        window.currentPage = pageNumber;
+                        renderPublicPosts();
+                        
+                        // Чекаємо поки пости відрендеряться, потім скролимо
+                        setTimeout(() => {
+                            const target = document.querySelector(targetId);
+                            if (target) {
+                                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }
+                        }, 100);
+                    } else {
+                        // Якщо на поточній сторінці - просто скролимо
+                        const target = document.querySelector(targetId);
+                        if (target) {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            });
+        }
+
+        function buildHashtagFilter() {
+            const hashtagFilters = document.getElementById('hashtagFilters');
+            const hashtagFilterContainer = document.getElementById('hashtagFilterContainer');
+
+            // Collect all unique hashtags
+            const allHashtags = new Set();
+            window.posts.forEach(post => {
+                if (post.hashtags) {
+                    post.hashtags.forEach(tag => allHashtags.add(tag));
+                }
+            });
+
+            if (allHashtags.size === 0) {
+                hashtagFilterContainer.style.display = 'none';
+                return;
+            }
+
+            hashtagFilterContainer.style.display = 'block';
+            hashtagFilters.innerHTML = `
+                <button class="clear-hashtag-filter" onclick="clearHashtagFilter()" style="${window.currentHashtagFilter ? '' : 'display:none;'}" id="clearHashtagBtn">✕ Очистити фільтр</button>
+                ${Array.from(allHashtags).sort().map(tag => `
+                    <span class="hashtag-filter ${window.currentHashtagFilter === tag ? 'active' : ''}" onclick="filterByHashtag(\`${tag}\`)">#${escapeHtml(tag)}</span>
+                `).join('')}
+            `;
+        }
+
+        window.filterByHashtag = function(tag) {
+            if (window.currentHashtagFilter === tag) {
+                window.currentHashtagFilter = null;
+            } else {
+                window.currentHashtagFilter = tag;
+            }
+            window.currentPage = 1;
+            renderPublicPosts();
         };
 
-        window.deletePost = async function(postId, postTitle) {
-            if (!confirm(`Видалити пост "${postTitle}"?`)) return;
+        window.clearHashtagFilter = function() {
+            window.currentHashtagFilter = null;
+            window.currentPage = 1;
+            renderPublicPosts();
+        };
+
+        window.toggleTOC = function() {
+            const tocList = document.getElementById('tocList');
+            const tocToggle = document.getElementById('tocToggle');
             
-            try {
-                await remove(ref(db, `posts/${postId}`));
-                showMessage(`✅ Пост видалено`, 'success');
-                await loadExistingPosts();
-                renderManagePosts();
-                
-                // Оновлюємо статистику дублікатів
-                poems.forEach(p => {
-                    p.isDuplicate = isDuplicate(p.title, p.content);
+            tocList.classList.toggle('collapsed');
+            tocToggle.textContent = tocList.classList.contains('collapsed') ? '▶' : '▼';
+        };
+
+        // Utility
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const months = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+                'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getPluralForm(number, one, few, many) {
+            const mod10 = number % 10;
+            const mod100 = number % 100;
+            
+            if (mod10 === 1 && mod100 !== 11) return one;
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+            return many;
+        }
+
+        // Public Search Functions
+        window.searchPosts = function() {
+            const searchInput = document.getElementById('searchInput');
+            window.searchQuery = searchInput.value.trim();
+            
+            if (window.searchQuery) {
+                document.getElementById('clearSearchBtn').style.display = 'block';
+            }
+            
+            window.currentPage = 1;
+            renderPublicPosts();
+        };
+
+        window.clearSearch = function() {
+            window.searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            document.getElementById('searchResultsInfo').style.display = 'none';
+            window.currentPage = 1;
+            renderPublicPosts();
+        };
+
+        // Enter key support for search
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchPosts();
+                    }
                 });
-                document.getElementById('duplicateCount').textContent = poems.filter(p => p.isDuplicate).length;
-            } catch (error) {
-                showMessage(`❌ Помилка видалення: ${error.message}`, 'error');
+            }
+
+            // Admin search Enter support
+            const adminSearchInput = document.getElementById('adminSearchInput');
+            if (adminSearchInput) {
+                adminSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchAdminPosts();
+                    }
+                });
+            }
+        });
+
+        // Admin Search Functions
+        window.searchAdminPosts = function() {
+            const searchInput = document.getElementById('adminSearchInput');
+            window.adminSearchQuery = searchInput.value.trim();
+            
+            if (window.adminSearchQuery) {
+                document.getElementById('clearAdminSearchBtn').style.display = 'block';
+            }
+            
+            renderAdminPosts();
+        };
+
+        window.clearAdminSearch = function() {
+            window.adminSearchQuery = '';
+            document.getElementById('adminSearchInput').value = '';
+            document.getElementById('clearAdminSearchBtn').style.display = 'none';
+            renderAdminPosts();
+        };
+
+        // Filter admin posts by hashtag
+        window.filterAdminByHashtag = function(tag) {
+            const searchInput = document.getElementById('adminSearchInput');
+            searchInput.value = '#' + tag;
+            window.adminSearchQuery = tag;
+            document.getElementById('clearAdminSearchBtn').style.display = 'block';
+            renderAdminPosts();
+        };
+
+        // Header Toggle
+        window.toggleHeader = function() {
+            const header = document.getElementById('siteHeader');
+            const toggle = document.getElementById('headerToggle');
+            
+            header.classList.toggle('expanded');
+            toggle.textContent = header.classList.contains('expanded') ? '▲' : '▼';
+        };
+
+        // Scroll to TOC
+        window.scrollToTOC = function() {
+            const toc = document.getElementById('tocContainer');
+            const container = document.querySelector('.container');
+            
+            if (toc && container) {
+                // Показати зміст, якщо він прихований
+                if (toc.style.display === 'none') {
+                    toc.style.display = 'block';
+                }
+                
+                // Прокрутити до початку контейнера
+                const containerTop = container.offsetTop;
+                window.scrollTo({
+                    top: containerTop - 10,
+                    behavior: 'smooth'
+                });
+                
+                // Закрити header після переходу
+                setTimeout(() => {
+                    const header = document.getElementById('siteHeader');
+                    const toggle = document.getElementById('headerToggle');
+                    header.classList.remove('expanded');
+                    toggle.textContent = '▼';
+                }, 500);
             }
         };
 
-        window.closeManageModal = function() {
-            document.getElementById('manageModal').classList.remove('active');
-        };
+        // Auto-collapse header on scroll
+        let lastScrollTop = 0;
+        window.addEventListener('scroll', () => {
+            if (headerLocked) return;
 
-        // Детальний звіт про дублікати
-        window.showDuplicateReport = function() {
-            const modal = document.getElementById('duplicateReportModal');
-            const modalBody = document.getElementById('duplicateReportBody');
-            modal.classList.add('active');
-            
-            modalBody.innerHTML = '<div class="loading"><div class="spinner"></div><p>Аналіз дублікатів...</p></div>';
-            
-            setTimeout(() => {
-                let html = '<h3 style="margin-bottom: 20px;">📊 Результати аналізу</h3>';
-                
-                const duplicatesFound = poems.filter(p => p.isDuplicate);
-                
-                if (duplicatesFound.length === 0) {
-                    html += `
-                        <div style="text-align: center; padding: 40px; background: #d4edda; border-radius: 15px; color: #155724;">
-                            <div style="font-size: 4em; margin-bottom: 20px;">✅</div>
-                            <h2 style="margin-bottom: 10px;">Дублікатів не знайдено!</h2>
-                            <p>Всі ${poems.length} віршів унікальні і готові до публікації.</p>
-                        </div>
-                    `;
-                } else {
-                    html += `
-                        <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ffc107;">
-                            <strong>⚠️ Знайдено ${duplicatesFound.length} можливих дублікатів</strong>
-                            <p style="margin-top: 5px; color: #856404;">Перевірте кожен вірш перед публікацією</p>
-                        </div>
-                    `;
-                    
-                    duplicatesFound.forEach((poem, index) => {
-                        const duplicateMatches = getDuplicateInfo(poem.title, poem.content);
-                        
-                        html += `
-                            <div style="border: 2px solid #ffc107; border-radius: 15px; padding: 20px; margin-bottom: 20px; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);">
-                                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                                    <div style="flex: 1;">
-                                        <strong style="font-size: 1.1em; color: #333;">📝 ${poem.title}</strong>
-                                        <div style="color: #666; font-size: 0.9em; margin-top: 5px;">
-                                            Знайдено ${duplicateMatches.length} схожих постів
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
-                                    <strong>Ваш вірш:</strong>
-                                    <div style="color: #666; margin-top: 10px; max-height: 100px; overflow: hidden; font-family: 'Courier New', monospace; font-size: 0.9em;">
-                                        ${poem.content.substring(0, 200)}...
-                                    </div>
-                                </div>
-                                
-                                <strong style="display: block; margin-bottom: 10px;">Схожі пости на сайті:</strong>
-                                ${duplicateMatches.map((match, idx) => {
-                                    const similarity = calculateSimilarity(
-                                        poem.content.substring(0, 300),
-                                        match.content ? match.content.substring(0, 300) : ''
-                                    );
-                                    const similarityPercent = Math.round(similarity * 100);
-                                    
-                                    return `
-                                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid ${similarityPercent > 90 ? '#dc3545' : similarityPercent > 80 ? '#ffc107' : '#28a745'};">
-                                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                                <strong>${match.title || 'Без заголовка'}</strong>
-                                                <span style="background: ${similarityPercent > 90 ? '#dc3545' : similarityPercent > 80 ? '#ffc107' : '#28a745'}; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.85em;">
-                                                    ${similarityPercent}% схожість
-                                                </span>
-                                            </div>
-                                            <div style="color: #666; font-size: 0.85em; margin-bottom: 8px;">
-                                                ${match.type === 'poetry' ? '📖 Поезія' : '💭 Думка'} • ${match.date ? new Date(match.date).toLocaleDateString('uk-UA') : ''}
-                                            </div>
-                                            <div style="color: #666; font-size: 0.85em; max-height: 60px; overflow: hidden; font-family: 'Courier New', monospace;">
-                                                ${match.content ? match.content.substring(0, 150) : ''}...
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        `;
-                    });
-                }
-                
-                html += `
-                    <div style="margin-top: 30px; padding: 20px; background: #e8f4f8; border-radius: 15px;">
-                        <h4 style="margin-bottom: 10px;">ℹ️ Як працює перевірка:</h4>
-                        <ul style="margin-left: 20px; line-height: 1.8;">
-                            <li>✅ Точна відповідність заголовка</li>
-                            <li>✅ Збіг перших 100-200 символів тексту</li>
-                            <li>✅ Схожість понад 80% за словами</li>
-                            <li>✅ Збіг першого рядка вірша</li>
-                        </ul>
-                    </div>
-                `;
-                
-                modalBody.innerHTML = html;
-            }, 500);
-        };
+            const header = document.getElementById('siteHeader');
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-        window.closeDuplicateReport = function() {
-            document.getElementById('duplicateReportModal').classList.remove('active');
-        };
+            if (scrollTop > lastScrollTop && scrollTop > 50) {
+                header.classList.remove('expanded');
+                document.getElementById('headerToggle').textContent = '▼';
+            }
 
-        function getPluralForm(num) {
-            if (num === 1) return 'вірш';
-            if (num >= 2 && num <= 4) return 'вірші';
-            return 'віршів';
-        }
-
-        function showMessage(text, type) {
-            const msg = document.getElementById('message');
-            msg.textContent = text;
-            msg.className = `message ${type}`;
-            msg.style.display = 'block';
-            setTimeout(() => {
-                msg.style.display = 'none';
-            }, 5000);
-        }
-
-        document.getElementById('searchBox').addEventListener('input', (e) => {
-            renderPoems(e.target.value);
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
         });
     </script>
+	<script>
+function toggleHeader() {
+    const header = document.getElementById('siteHeader');
+    const toggle = document.getElementById('headerToggle');
+
+    header.classList.toggle('expanded');
+    headerLocked = header.classList.contains('expanded');
+
+    toggle.textContent = header.classList.contains('expanded') ? '▲' : '▼';
+}
+
+		
+document.addEventListener('DOMContentLoaded', () => {
+    const header = document.getElementById('siteHeader');
+    const toggleBtn = document.getElementById('headerToggle');
+
+    header.classList.remove('expanded');
+    toggleBtn.textContent = '▼';
+});
+
+
+// ===== EXPORT POST AS IMAGE =====
+window.downloadPostAsImage = async function(postId) {
+    const post = window.posts.find(p => p.id === postId);
+    if (!post) return;
+
+    const button = event.target;
+    button.disabled = true;
+    button.textContent = '⏳ Створюю зображення...';
+
+    try {
+        const blob = await exportPostAsImage(post);
+        const filename = `${post.title.substring(0, 30).replace(/[^a-zа-яїієґ0-9]/gi, '_')}.png`;
+        downloadImage(blob, filename);
+        button.textContent = '✅ Збережено!';
+        setTimeout(() => {
+            button.textContent = '📥 Зберегти як фото';
+            button.disabled = false;
+        }, 2000);
+    } catch (error) {
+        console.error('Error creating image:', error);
+        button.textContent = '❌ Помилка';
+        setTimeout(() => {
+            button.textContent = '📥 Зберегти як фото';
+            button.disabled = false;
+        }, 2000);
+    }
+};
+
+async function exportPostAsImage(post) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    const width = 1080;
+    const height = 1080;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Отримуємо поточний розмір шрифту з налаштувань
+    let savedFontSize = localStorage.getItem('fontSize');
+    let fontSizeMultiplier = 1.0; // Базовий множник
+    
+    if (savedFontSize) {
+        const sizeNum = parseInt(savedFontSize);
+        // Перевіряємо чи це старий формат (85-200)
+        if (sizeNum > 100) {
+            // Старий формат, конвертуємо в новий
+            const newValue = Math.round(((sizeNum - 85) / (200 - 85)) * 100);
+            fontSizeMultiplier = 0.5 + (newValue / 100) * 2.0;
+        } else {
+            // Новий формат (0-100)
+            fontSizeMultiplier = 0.5 + (sizeNum / 100) * 2.0;
+        }
+    }
+    
+    const colors = {
+        bgMain: '#faf8f3',
+        bgCard: '#ffffff',
+        primary: '#2c3e50',
+        accent: '#8b6f47',
+        textMain: '#1a1a1a',
+        textLight: '#666666'
+    };
+    
+    // Фон
+    ctx.fillStyle = colors.bgMain;
+    ctx.fillRect(0, 0, width, height);
+    
+    // Градієнт
+    const gradient = ctx.createRadialGradient(width * 0.2, height * 0.8, 0, width * 0.2, height * 0.8, width * 0.5);
+    gradient.addColorStop(0, 'rgba(139, 111, 71, 0.03)');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    
+    // Картка
+    const padding = 60;
+    const cardX = padding;
+    const cardY = padding;
+    const cardWidth = width - padding * 2;
+    const cardHeight = height - padding * 2;
+    
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.08)';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 4;
+    
+    ctx.fillStyle = colors.bgCard;
+    roundRect(ctx, cardX, cardY, cardWidth, cardHeight, 12);
+    ctx.fill();
+    
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // Акцентна лінія зліва
+    ctx.fillStyle = colors.accent;
+    ctx.fillRect(cardX, cardY, 4, cardHeight);
+    
+    let currentY = cardY + 60;
+    
+    // РІЗНІ ШАБЛОНИ ДЛЯ ПОЕЗІЇ ТА ДУМОК
+    if (post.type === 'poetry') {
+        // ============ ШАБЛОН ДЛЯ ПОЕЗІЇ (компактний, відцентрований) ============
+        
+        // Спочатку рахуємо висоту контенту для центрування
+        ctx.font = `bold ${Math.round(38 * fontSizeMultiplier)}px "Philosopher", Arial, sans-serif`;
+        const titleHeight = measureTextHeight(ctx, post.title, cardWidth - 80, Math.round(48 * fontSizeMultiplier));
+        
+        ctx.font = `italic ${Math.round(26 * fontSizeMultiplier)}px Georgia, serif`;
+        const contentHeight = measureTextHeight(ctx, post.content, cardWidth - 160, Math.round(26 * fontSizeMultiplier) * 1.75);
+        
+        const footerHeight = 50; // Висота футера
+        const spaceBetween = 40; // Відстань між заголовком і віршем
+        
+        const totalContentHeight = titleHeight + spaceBetween + contentHeight + footerHeight;
+        
+        // Центруємо вертикально
+        currentY = cardY + (cardHeight - totalContentHeight) / 2;
+        
+        // Заголовок (відцентрований)
+        ctx.fillStyle = colors.primary;
+        const titleFontSize = Math.round(38 * fontSizeMultiplier);
+        ctx.font = `bold ${titleFontSize}px "Philosopher", Arial, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        currentY = drawWrappedText(ctx, post.title, width / 2, currentY, cardWidth - 80, Math.round(48 * fontSizeMultiplier));
+        
+        currentY += spaceBetween; // Невелика відстань між заголовком і віршем
+        
+        // Текст вірша (по центру, курсивом)
+        ctx.fillStyle = colors.textMain;
+        const fontSize = Math.round(26 * fontSizeMultiplier);
+        const lineHeight = fontSize * 1.75;
+        
+        ctx.font = `italic ${fontSize}px Georgia, serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        currentY = drawWrappedText(ctx, post.content, width / 2, currentY, cardWidth - 160, lineHeight);
+        
+        // Футер "Поезія KonVi" - внизу з мінімальним відступом
+        const footerY = cardY + cardHeight - 8; // Мінімальний відступ від краю
+        ctx.fillStyle = colors.textLight;
+        ctx.font = 'italic 22px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Поезія KonVi', width / 2, footerY);
+        
+    } else {
+        // ============ ШАБЛОН ДЛЯ ДУМОК (компактний) ============
+        
+        // Заголовок
+        ctx.fillStyle = colors.primary;
+        const titleFontSize = Math.round(52 * fontSizeMultiplier);
+        ctx.font = `bold ${titleFontSize}px "Philosopher", Arial, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        currentY = drawWrappedText(ctx, post.title, cardX + 40, currentY, cardWidth - 80, Math.round(65 * fontSizeMultiplier));
+        
+        currentY += 50; // Відступ після заголовка
+        
+        // Текст думки (вліво)
+        ctx.fillStyle = colors.textMain;
+        const fontSize = Math.round(26 * fontSizeMultiplier);
+        const lineHeight = fontSize * 1.75;
+        
+        ctx.font = `${fontSize}px Georgia, serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        currentY = drawWrappedText(ctx, post.content, cardX + 40, currentY, cardWidth - 80, lineHeight);
+        
+        currentY += 50;
+        
+        // Футер "Поезія KonVi" - внизу з мінімальним відступом (так само як у віршів)
+        const footerY = cardY + cardHeight - 8; // Мінімальний відступ від краю
+        ctx.fillStyle = colors.textLight;
+        ctx.font = 'italic 22px Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Поезія KonVi', width / 2, footerY);
+    }
+    
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), 'image/png', 1.0);
+    });
+}
+
+function roundRect(ctx, x, y, width, height, radius) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+}
+
+function measureTextHeight(ctx, text, maxWidth, lineHeight) {
+    const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalizedText.split('\n');
+    let totalHeight = 0;
+    let linesCount = 0;
+    const maxLines = 15;
+    
+    for (const line of lines) {
+        if (linesCount >= maxLines) break;
+        
+        if (line.trim() === '') {
+            totalHeight += lineHeight * 0.6;
+            linesCount++;
+            continue;
+        }
+        
+        const words = line.split(/\s+/);
+        let currentLine = '';
+        
+        for (let i = 0; i < words.length; i++) {
+            const testLine = currentLine + words[i] + ' ';
+            const metrics = ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && i > 0) {
+                totalHeight += lineHeight;
+                currentLine = words[i] + ' ';
+                linesCount++;
+                
+                if (linesCount >= maxLines) break;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        
+        if (currentLine.trim()) {
+            totalHeight += lineHeight;
+            linesCount++;
+        }
+    }
+    
+    return totalHeight;
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight) {
+    // Нормалізуємо переноси рядків (різні формати)
+    const normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = normalizedText.split('\n');
+    let currentY = y;
+    let linesDrawn = 0;
+    const maxLines = 15;
+    
+    for (const line of lines) {
+        if (linesDrawn >= maxLines) {
+            ctx.fillText('...', x, currentY);
+            return currentY + lineHeight;
+        }
+        
+        // Порожній рядок - зберігаємо (для строф)
+        if (line.trim() === '') {
+            currentY += lineHeight * 0.6; // Менший відступ для порожніх рядків
+            linesDrawn++;
+            continue;
+        }
+        
+        // Розбиваємо довгі рядки по словах
+        const words = line.split(/\s+/);
+        let currentLine = '';
+        
+        for (let i = 0; i < words.length; i++) {
+            const testLine = currentLine + words[i] + ' ';
+            const metrics = ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && i > 0) {
+                ctx.fillText(currentLine.trim(), x, currentY);
+                currentLine = words[i] + ' ';
+                currentY += lineHeight;
+                linesDrawn++;
+                
+                if (linesDrawn >= maxLines) {
+                    ctx.fillText('...', x, currentY);
+                    return currentY + lineHeight;
+                }
+            } else {
+                currentLine = testLine;
+            }
+        }
+        
+        // Малюємо залишок рядка
+        if (currentLine.trim()) {
+            ctx.fillText(currentLine.trim(), x, currentY);
+            currentY += lineHeight;
+            linesDrawn++;
+        }
+    }
+    
+    return currentY;
+}
+
+function formatDateForImage(dateString) {
+    const date = new Date(dateString);
+    const months = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня',
+        'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+}
+
+function downloadImage(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+			
+</script>
 </body>
 </html>
