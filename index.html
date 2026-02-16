@@ -139,10 +139,11 @@
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(circle at 20% 80%, rgba(139, 111, 71, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(139, 111, 71, 0.04) 0%, transparent 50%);
+                radial-gradient(circle at 20% 80%, var(--accent-light, rgba(139, 111, 71, 0.03)) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, var(--accent-light, rgba(139, 111, 71, 0.04)) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
+            opacity: 0.3;
         }
 
         header {
@@ -2135,7 +2136,7 @@
                             </label>
                             <label class="search-option">
                                 <input type="radio" name="searchType" value="title">
-                                <span>За назвою</span>
+                                <span>За назвами</span>
                             </label>
                             <label class="search-option">
                                 <input type="radio" name="searchType" value="content">
@@ -2513,9 +2514,27 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             window.posts = await loadPosts();
+            await loadGlobalTheme(); // Завантажуємо тему
             renderPublicPosts();
             initializePublicFilters();
             initFontSizeSlider();
+            
+            // Слухаємо зміни теми в реальному часі (після ініціалізації)
+            if (isFirebaseConfigured) {
+                onValue(ref(database, 'settings/theme'), (snapshot) => {
+                    if (snapshot.exists()) {
+                        const themeName = snapshot.val();
+                        if (themeName === 'default') {
+                            document.documentElement.removeAttribute('data-theme');
+                        } else {
+                            document.documentElement.setAttribute('data-theme', themeName);
+                        }
+                        if (!window.siteSettings) window.siteSettings = {};
+                        window.siteSettings.theme = themeName;
+                        console.log(`✓ Тема оновлена в реальному часі: ${themeName}`);
+                    }
+                });
+            }
         });
 
         // Font Size Control
@@ -2715,11 +2734,15 @@
         }
 
         window.applyTheme = async function(themeName) {
+            console.log('🎨 Застосовую тему:', themeName);
+            
             // Застосовуємо тему локально
             if (themeName === 'default') {
                 document.documentElement.removeAttribute('data-theme');
+                console.log('✓ Видалено атрибут data-theme (класична тема)');
             } else {
                 document.documentElement.setAttribute('data-theme', themeName);
+                console.log('✓ Встановлено data-theme:', document.documentElement.getAttribute('data-theme'));
             }
             
             // Зберігаємо в Firebase для всіх користувачів
@@ -2727,10 +2750,14 @@
                 try {
                     await set(ref(database, 'settings/theme'), themeName);
                     console.log(`✓ Тема збережена в Firebase: ${themeName}`);
+                    alert(`✅ Тема "${themeName}" застосована для всіх користувачів!`);
                 } catch (error) {
-                    console.error('Помилка збереження теми:', error);
+                    console.error('❌ Помилка збереження теми:', error);
                     alert('Помилка збереження теми. Перевірте підключення до Firebase.');
                 }
+            } else {
+                console.warn('⚠️ Firebase не налаштовано');
+                alert('⚠️ Firebase не налаштовано. Тема застосована тільки локально.');
             }
             
             // Оновлюємо відображення
@@ -2759,26 +2786,6 @@
                 }
             }
         }
-
-        // Слухаємо зміни теми в реальному часі
-        if (isFirebaseConfigured) {
-            onValue(ref(database, 'settings/theme'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const themeName = snapshot.val();
-                    if (themeName === 'default') {
-                        document.documentElement.removeAttribute('data-theme');
-                    } else {
-                        document.documentElement.setAttribute('data-theme', themeName);
-                    }
-                    if (!window.siteSettings) window.siteSettings = {};
-                    window.siteSettings.theme = themeName;
-                    console.log(`✓ Тема оновлена в реальному часі: ${themeName}`);
-                }
-            });
-        }
-
-        // Завантажуємо тему при старті
-        loadGlobalTheme();
 
         function resetEditor() {
             document.getElementById('editorForm').reset();
